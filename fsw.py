@@ -17,11 +17,11 @@ app = dash.Dash(__name__, external_stylesheets= [dbc.themes.BOOTSTRAP, 'https://
 
 now = datetime.utcnow()
 endyear = now.year + 1
-root_dir = 'C:/data/'
+#root_dir = 'C:/data/'
 #root_dir = '/home/tjturnage/'
-DATA_DIR = root_dir + 'TEXT_DATA'
-FSW_OUT_DATA = os.path.join(root_dir,'FSW_OUTPUT/fsw_output.txt')
-print(FSW_OUT_DATA)
+#DATA_DIR = root_dir + 'TEXT_DATA'
+#FSW_OUT_DATA = os.path.join(root_dir,'FSW_OUTPUT/fsw_output.txt')
+#print(FSW_OUT_DATA)
 
 def build_range_slider():
     year_list = list(np.arange(1996,endyear,1))
@@ -30,6 +30,7 @@ def build_range_slider():
     marks_dict = dict(zip(years_str, marks))
     return marks_dict
 
+"""
 def create_dataframe():
     dts = []
     product = []
@@ -46,9 +47,10 @@ def create_dataframe():
     df = pd.DataFrame(data)
     df.set_index('dts', inplace=True)
     return df
+"""
 
 def get_master_list():
-    os.chdir(DATA_DIR)
+    #os.chdir(DATA_DIR)
     master = glob.glob('*',recursive=True)
     return master
 
@@ -74,7 +76,7 @@ master_list = get_master_list()
 
 product_options, wfo_options = specific_products_directories()
 
-df = create_dataframe()
+#df = create_dataframe()
 
 app.layout = dbc.Container([
 
@@ -136,14 +138,15 @@ app.layout = dbc.Container([
 def update_figure(product, wfo):
     tracename = f'Frequency of "Lake Effect" mentioned in {product} issued from {wfo}'
     fullname = f'{product}{wfo}'
-    filtered = df[df['product'] == fullname]
-    monthly = filtered.resample('M').count()
-    trace = [go.Scatter(
-            x=monthly.index,
-            y=monthly['product'],
-            name=tracename
-            )]
+    #filtered = df[df['product'] == fullname]
+    #monthly = filtered.resample('M').count()
+    #trace = [go.Scatter(
+    #        x=monthly.index,
+    #        y=monthly['product'],
+    #        name=tracename
+    #        )]
 
+"""
     return {
         'data':trace,
         'layout': go.Layout(
@@ -152,6 +155,7 @@ def update_figure(product, wfo):
                 hovermode='closest',
                 title=tracename
             )}
+"""
 
 if __name__ == '__main__':
     app.run_server()

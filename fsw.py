@@ -83,8 +83,7 @@ app.layout = dbc.Container([
                     id='word-list',
                     value='Enter List Here',
                     style={'width': '100%', 'height': 300},
-                ),
-            align="center"
+                )
         ),
             dbc.Row(
             [
@@ -100,28 +99,33 @@ app.layout = dbc.Container([
             ],
             align="center"
         ),
-            html.Div(
-            [   html.H2(children="Select Range of Years to Search"),
-                dcc.RangeSlider(min=1996,max=endyear,step=None,marks=build_range_slider(),value=['2000','2015'],allowCross=False),
-            ],
-        )], style={'border-color':'blue'}
-            ),
-            dbc.Row(
-            [
-                dbc.Col(html.H2('Select Product and Station to be Plotted Below'), md=12),
-            ],
-            align="center"
-        ),
-            dbc.Row(
-            [
-                dbc.Col(dcc.RadioItems(id='product-picker',options=product_options,value='AFD'), md=4),
-                dbc.Col(dcc.RadioItems(id='wfo-picker',options=wfo_options,value='GRR'), md=4),
-            ],
-            align="center"
-        ),
-            html.Div(
-            [dcc.Graph(id='trend')]
-            ),
+])
+
+#            html.Div(
+#            [   html.H2(children="Select Range of Years to Search"),
+#                dcc.RangeSlider(min=1996,max=endyear,step=None,marks=build_range_slider(),value=['2000','2015'],allowCross=False),
+#            ],
+#        ), style={'border-color':'blue'}
+#
+#            dbc.Row(
+#            [
+#                dbc.Col(html.H2('Select Product and Station to be Plotted Below'), md=12),
+#            ],
+#            align="center"
+#        ),
+
+#            dbc.Row(
+#            [
+#                dbc.Col(dcc.RadioItems(id='product-picker',options=product_options,value='AFD'), md=4),
+#                dbc.Col(dcc.RadioItems(id='wfo-picker',options=wfo_options,value='GRR'), md=4),
+#            ],
+#            align="center"
+#        )
+        
+            #dbc.Row([
+            #html.Div([dcc.Graph(id='trend')]
+            #])
+            
     
     
 @app.callback(Output('trend', 'figure'),

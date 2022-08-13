@@ -35,17 +35,17 @@ except:
     #root_dir = '/home/tjturnage/'
 
 def get_text_output():
-    if cloud:
+    try:
         fname = os.listdir(FSW_OUTPUT_DIR)[-1]
         text_file_path = os.join(FSW_OUTPUT_DIR,fname)
         fin = open(text_file_path, 'r')
         text_data = fin.read()
         fin.close()
         return text_data
-    else:
-        return "Not in instance!"
+    except:
+        return "Couldn't access file!"
 
-
+your_string = get_text_output()
 
 card_content = [
             dbc.CardBody([html.H1("Forecast Search Wizard", className="card-title"),
@@ -88,7 +88,7 @@ view_output = [
             ])
 ]
 
-your_string = get_text_output()
+
 
 app.layout = dbc.Container(
     html.Div([

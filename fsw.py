@@ -111,7 +111,7 @@ app.layout = dbc.Container(
     style={"padding": "1em"},
     ),
         dbc.Row(dbc.Card(view_output, color="success", inverse=True), style={'padding':'1em'}),
-        dbc.Row(dbc.Button("Click to Refresh Text Below",id="refresh-text", n_clicks=0), style={'padding':'1em'}),
+        dbc.Row(dbc.Button("Click to Toggle Text On/Off",id="refresh-text", n_clicks=0), style={'padding':'1em'}),
         dbc.Row(html.Div(children=" ", id="new-text", style={'whiteSpace': 'pre-line', 'border': '2px gray solid', 'padding':'1em'}))
 
     ])
@@ -129,15 +129,15 @@ def create_list(n_clicks,myvalue):
 @app.callback(Output(component_id='new-text', component_property='children'),
                 [Input(component_id='refresh-text',component_property='n_clicks')],)
 def get_text_output(n_clicks):
-    try:
+    if n_clicks%2 == 0:
         fname = os.listdir(FSW_OUTPUT_DIR)[-1]
         text_file_path = os.path.join(FSW_OUTPUT_DIR,fname)
         fin = open(text_file_path, 'r')
         text_data = fin.read()
         fin.close()
         return text_data
-    except:
-        return "Couldn't access file!"
+    else:
+        return ""
 
 if __name__ == '__main__':
     app.run_server()

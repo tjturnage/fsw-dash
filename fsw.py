@@ -33,7 +33,18 @@ except:
     root_dir = 'C:/data/'
     #root_dir = '/home/tjturnage/'
 
+def get_text_product():
+    fname = os.listdir(FSW_OUTPUT_DIR)[-1]
+    text_file_path = os.path.join(FSW_OUTPUT_DIR,fname)
+    fin = open(text_file_path, 'r')
+    text_data = fin.read()
+    fin.close()
+    return text_data
 
+try:
+    text_data = get_text_product()
+except:
+    text_data = "not on instance!"
 
 #your_string = get_text_output()
 
@@ -130,11 +141,6 @@ def create_list(n_clicks,myvalue):
 @app.callback(Output(component_id='new-text', component_property='children'),
                 [Input(component_id='refresh-text',component_property='n_clicks')],)
 def get_text_output(n_clicks):
-    fname = os.listdir(FSW_OUTPUT_DIR)[-1]
-    text_file_path = os.path.join(FSW_OUTPUT_DIR,fname)
-    fin = open(text_file_path, 'r')
-    text_data = fin.read()
-    fin.close()
     if n_clicks%2 == 0:
         return text_data
     else:

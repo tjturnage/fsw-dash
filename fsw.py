@@ -111,7 +111,7 @@ app.layout = dbc.Container(
     style={"padding": "1em"},
     ),
         dbc.Row(dbc.Card(view_output, color="success", inverse=True), style={'padding':'1em'}),
-        dbc.Button("Refresh Text",id="refresh-text", n_clicks=0),
+        dbc.Row(dbc.Button("Click to Refresh Text Below",id="refresh-text", n_clicks=0), style={'padding':'1em'}),
         dbc.Row(html.Div(children=" ", id="new-text", style={'whiteSpace': 'pre-line', 'border': '2px gray solid', 'padding':'1em'}))
 
     ])

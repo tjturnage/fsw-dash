@@ -14,25 +14,47 @@ import pandas as pd
 import glob
 import os
 
+
+
 app = dash.Dash(__name__, external_stylesheets= [dbc.themes.DARKLY])#, 'https://codepen.io/chriddyp/pen/bWLwgP.css'])
+app.title = "Forecast Search Wizard"
 
 now = datetime.utcnow()
 endyear = now.year + 1
 try:
     os.list('/data/')
     root_dir = '/data'
+    cloud = True
     FSW_DIR = '/Forecast_Search_Wizard'
     DATA_DIR = os.path.join(root_dir, 'TEXT_DATA')
     FSW_OUTPUT_DIR = os.path.join(FSW_DIR,'FSW_OUTPUT')
 
 except:
     root_dir = 'C:/data/'
+    cloud = False
     #root_dir = '/home/tjturnage/'
+
+def get_text_output():
+    if cloud:
+        fname = os.listdir(FSW_OUTPUT_DIR)[-1]
+        text_file_path = os.join(FSW_OUTPUT_DIR,fname)
+        fin = open(text_file_path, 'r')
+        text_data = fin.read()
+        fin.close()
+        return text_data
+    else:
+        return "Not in instance!"
+
+
 
 card_content = [
             dbc.CardBody([html.H1("Forecast Search Wizard", className="card-title"),
                 html.H3(
                     "An application to search National Weather Service Text Products by keywords",
+                    className="card-text",
+                ),
+                html.H4(
+                    "Developed by Eric Allen (eric.allen@noaa.gov)",
                     className="card-text",
                 ),
                 dbc.CardLink("Details at GitHub repository", href="https://github.com/allenea/Forecast_Search_Wizard"),
@@ -57,6 +79,17 @@ step_two = [
             ])
 ]
 
+view_output = [
+            dbc.CardBody([html.H4("Output", className="card-title"),
+                html.H5(
+                    "Search Wizard Results",
+                    className="card-text",
+                ),
+            ])
+]
+
+your_string = get_text_output()
+
 app.layout = dbc.Container(
     html.Div([
         dbc.Row(dbc.Col(html.Div(html.Hr()))),
@@ -65,7 +98,7 @@ app.layout = dbc.Container(
         dbc.Row(
             html.Div([
                 dbc.InputGroup([
-                    dbc.Input(id='list-in',placeholder='Example ... AFDGRR AFDAPX',type='text'),
+                    dbc.Input(id='list-in',placeholder='Example ... AFDGRR AFDAPX', type='text'),
                     dbc.Button("Create Product List",id='submit-button', n_clicks=0),
             ], style={'padding':'1em'}),
                 html.Div(id='list-out', style={'border': '2px gray solid', 'padding':'1em'},)])
@@ -85,7 +118,9 @@ app.layout = dbc.Container(
             )
     ],
     style={"padding": "1em"},
-    )
+    ),
+        dbc.Row(dbc.Card(view_output, color="success", inverse=True), style={'padding':'1em'}),
+        dbc.Row(html.Div(your_string, style={'whiteSpace': 'pre-line', 'border': '2px gray solid', 'padding':'1em'}))
 
     ])
 )

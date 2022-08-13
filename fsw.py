@@ -14,30 +14,30 @@ import pandas as pd
 import glob
 import os
 
-
-
 app = dash.Dash(__name__, external_stylesheets= [dbc.themes.DARKLY])#, 'https://codepen.io/chriddyp/pen/bWLwgP.css'])
 app.title = "Forecast Search Wizard"
 
 now = datetime.utcnow()
-endyear = now.year + 1
+this_year = now.year
+next_year = this_year + 1
+
 try:
     os.list('/data/')
+    print('success')
     root_dir = '/data'
-    cloud = True
     FSW_DIR = '/Forecast_Search_Wizard'
     DATA_DIR = os.path.join(root_dir, 'TEXT_DATA')
+    print(DATA_DIR)
     FSW_OUTPUT_DIR = os.path.join(FSW_DIR,'FSW_OUTPUT')
 
 except:
     root_dir = 'C:/data/'
-    cloud = False
     #root_dir = '/home/tjturnage/'
 
 def get_text_output():
     try:
         fname = os.listdir(FSW_OUTPUT_DIR)[-1]
-        text_file_path = os.join(FSW_OUTPUT_DIR,fname)
+        text_file_path = os.path.join(FSW_OUTPUT_DIR,fname)
         fin = open(text_file_path, 'r')
         text_data = fin.read()
         fin.close()
@@ -111,9 +111,9 @@ app.layout = dbc.Container(
                 dcc.RangeSlider(
                 id="slider",
                 min=1996,
-                max=2022,
+                max=this_year,
                 value=[2010, 2020],
-                marks={i: str(i) for i in range(1996,2023)},
+                marks={i: str(i) for i in range(1996,next_year)},
                 )
             )
     ],

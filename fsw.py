@@ -22,8 +22,7 @@ this_year = now.year
 next_year = this_year + 1
 
 try:
-    os.list('/data/')
-    print('success')
+    os.listdir('/data/')
     root_dir = '/data'
     FSW_DIR = '/Forecast_Search_Wizard'
     DATA_DIR = os.path.join(root_dir, 'TEXT_DATA')
@@ -34,18 +33,9 @@ except:
     root_dir = 'C:/data/'
     #root_dir = '/home/tjturnage/'
 
-def get_text_output():
-    try:
-        fname = os.listdir(FSW_OUTPUT_DIR)[-1]
-        text_file_path = os.path.join(FSW_OUTPUT_DIR,fname)
-        fin = open(text_file_path, 'r')
-        text_data = fin.read()
-        fin.close()
-        return text_data
-    except:
-        return "Couldn't access file!"
 
-your_string = get_text_output()
+
+#your_string = get_text_output()
 
 card_content = [
             dbc.CardBody([html.H1("Forecast Search Wizard", className="card-title"),
@@ -58,6 +48,7 @@ card_content = [
                     className="card-text",
                 ),
                 dbc.CardLink("Details at GitHub repository", href="https://github.com/allenea/Forecast_Search_Wizard"),
+                dbc.CardLink("@ForecastWizard", href="https://github.com/allenea/Forecast_Search_Wizard"),
             ])
 ]
 
@@ -120,7 +111,8 @@ app.layout = dbc.Container(
     style={"padding": "1em"},
     ),
         dbc.Row(dbc.Card(view_output, color="success", inverse=True), style={'padding':'1em'}),
-        dbc.Row(html.Div(your_string, style={'whiteSpace': 'pre-line', 'border': '2px gray solid', 'padding':'1em'}))
+        dbc.Button("Refresh Text",id="refresh-text", n_clicks=0),
+        dbc.Row(html.Div(children=" ", id="new-text", style={'whiteSpace': 'pre-line', 'border': '2px gray solid', 'padding':'1em'}))
 
     ])
 )
@@ -129,11 +121,23 @@ app.layout = dbc.Container(
 @app.callback(Output(component_id='list-out', component_property='children'),
                 [Input(component_id='submit-button',component_property='n_clicks')],
                 [State('list-in','value')])
-
 def create_list(n_clicks,myvalue):
     input_string = str(myvalue)
     product_list = input_string.split(' ')
     return str(product_list)
+
+@app.callback(Output(component_id='new-text', component_property='children'),
+                [Input(component_id='refresh-text',component_property='n_clicks')],)
+def get_text_output(n_clicks):
+    try:
+        fname = os.listdir(FSW_OUTPUT_DIR)[-1]
+        text_file_path = os.path.join(FSW_OUTPUT_DIR,fname)
+        fin = open(text_file_path, 'r')
+        text_data = fin.read()
+        fin.close()
+        return text_data
+    except:
+        return "Couldn't access file!"
 
 if __name__ == '__main__':
     app.run_server()

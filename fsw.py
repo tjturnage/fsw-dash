@@ -59,7 +59,7 @@ def make_dataframe(text_data):
 
 try:
     text_data = get_text_product()
-    df = make_dataframe(text_data)
+    #df = make_dataframe(text_data)
 except:
     text_data = "not on instance!"
 

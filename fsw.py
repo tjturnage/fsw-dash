@@ -3,15 +3,15 @@ from gc import callbacks
 import numpy as np
 
 
-import re
+#import re
 from textwrap import wrap
 import dash
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output,State
-#import plotly.graph_objs as go
+import plotly.graph_objs as go
 import pandas as pd
-import glob
+#import glob
 import os
 
 app = dash.Dash(__name__, external_stylesheets= [dbc.themes.DARKLY])#, 'https://codepen.io/chriddyp/pen/bWLwgP.css'])
@@ -129,15 +129,41 @@ def create_list(n_clicks,myvalue):
 @app.callback(Output(component_id='new-text', component_property='children'),
                 [Input(component_id='refresh-text',component_property='n_clicks')],)
 def get_text_output(n_clicks):
+    fname = os.listdir(FSW_OUTPUT_DIR)[-1]
+    text_file_path = os.path.join(FSW_OUTPUT_DIR,fname)
+    fin = open(text_file_path, 'r')
+    text_data = fin.read()
+    fin.close()
+    make_dataframe(text_data)
+
     if n_clicks%2 == 0:
-        fname = os.listdir(FSW_OUTPUT_DIR)[-1]
-        text_file_path = os.path.join(FSW_OUTPUT_DIR,fname)
-        fin = open(text_file_path, 'r')
-        text_data = fin.read()
-        fin.close()
         return text_data
     else:
         return ""
+
+def make_dataframe(text):
+    dts = []
+    product = []
+    lines = text.splitlines()
+    for line in lines:
+        if line[0] in ('0','1'):
+            values = line.split('\t')
+            dts.append(values[0])
+            product.append(values[1][1:])
+
+
+    dts_pd = pd.to_datetime(dts,infer_datetime_format=True)
+    data = {'dts':dts_pd, 'product':product}
+    df_full = pd.DataFrame(data)
+    df_full.set_index('dts', inplace=True)
+    df = df_full[df_full['product'] == 'AFDGRR']
+    monthly = df.resample('M').count()
+    #print(monthly)
+    x=df.index
+    y=monthly['product']
+    fig = go.Figure(data=go.Scatter(x=x, y=y))
+    fig.show()
+    return
 
 if __name__ == '__main__':
     app.run_server()

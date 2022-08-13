@@ -47,9 +47,10 @@ card_content = [
                     "Developed by Eric Allen (eric.allen@noaa.gov)",
                     className="card-text",
                 ),
-                dbc.CardLink("Details at GitHub repository", href="https://github.com/allenea/Forecast_Search_Wizard"),
-                dbc.CardLink("@ForecastWizard", href="https://github.com/allenea/Forecast_Search_Wizard"),
-            ])
+                html.Div([
+                dbc.CardLink("GitHub", href="https://github.com/allenea/Forecast_Search_Wizard")]),
+                html.Div([
+                dbc.CardLink("@WxSearchWizard", href="https://twitter.com/WxSearchWizard")]),])
 ]
 
 step_one = [
@@ -134,8 +135,6 @@ def get_text_output(n_clicks):
     fin = open(text_file_path, 'r')
     text_data = fin.read()
     fin.close()
-    make_dataframe(text_data)
-
     if n_clicks%2 == 0:
         return text_data
     else:

@@ -1,10 +1,6 @@
 from datetime import datetime
-from gc import callbacks
+from locale import D_FMT
 import numpy as np
-
-
-#import re
-from textwrap import wrap
 import dash
 from dash import html, dcc
 import dash_bootstrap_components as dbc
@@ -41,8 +37,29 @@ def get_text_product():
     fin.close()
     return text_data
 
+def make_dataframe(text_data):
+    lines = text_data.split('\n')
+    dts = []
+    product = []
+    for i, line in enumerate(lines):
+        if len(line) > 10 and line[0] in ('0','1'):
+            if i%500 == 0:
+                print(f'{i} out of {len(lines)}')
+            values = line.split('\t')
+            dts.append(values[0])
+            product.append(values[1][1:])
+            dts_pd = pd.to_datetime(dts,infer_datetime_format=True)
+            data = {'dts':dts_pd, 'product':product}
+            df_full = pd.DataFrame(data)
+            df_full.set_index('dts', inplace=True)
+            #df = df_full[df_full['product'] == 'AFDGRR']
+
+    #print(df_full)
+    return df_full
+
 try:
     text_data = get_text_product()
+    df = make_dataframe(text_data)
 except:
     text_data = "not on instance!"
 
@@ -123,7 +140,7 @@ app.layout = dbc.Container(
     style={"padding": "1em"},
     ),
         dbc.Row(dbc.Card(view_output, color="success", inverse=True), style={'padding':'1em'}),
-        dbc.Row(dbc.Button("Click to Toggle Text On/Off",id="refresh-text", n_clicks=0), style={'padding':'1em'}),
+        dbc.Row(dbc.Button("Click to Toggle Text Display (could take several seconds to load)",id="refresh-text", n_clicks=0), style={'padding':'1em'}),
         dbc.Row(html.Div(children=" ", id="new-text", style={'whiteSpace': 'pre-line', 'border': '2px gray solid', 'padding':'1em'}))
 
     ])

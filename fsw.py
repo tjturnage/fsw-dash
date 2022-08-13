@@ -39,21 +39,39 @@ card_content = [
             ])
 ]
 
+step_one = [
+            dbc.CardBody([html.H4("Step 1", className="card-title"),
+                html.H5(
+                    "Enter Products in upper case and separated by spaces. Click to create product list.",
+                    className="card-text",
+                ),
+            ])
+]
+
+step_two = [
+            dbc.CardBody([html.H4("Step 2", className="card-title"),
+                html.H5(
+                    "Choose Range of Years to Search",
+                    className="card-text",
+                ),
+            ])
+]
 
 app.layout = dbc.Container(
     html.Div([
         dbc.Row(dbc.Col(html.Div(html.Hr()))),
-        dbc.Row(dbc.Card(card_content, color="primary", inverse=True)),
+        dbc.Row(dbc.Card(card_content, color="secondary", inverse=True)),
+        dbc.Row(dbc.Card(step_one, color="info", inverse=True), style={'padding':'1em'}),
         dbc.Row(
             html.Div([
-                html.H3(children="Step 1: Enter Products in upper case, separated by spaces"),
-                html.Div([dbc.Input(id='list-in',placeholder='AFDGRR AFDAPX',type='text')],
-                style=dict(display='flex', width='100%', size='600')),
-                html.Div([dbc.Button("Create Product List",id='submit-button', n_clicks=0)]),
-                html.Div(id='list-out', style={'border': '2px gray solid'},)])
+                dbc.InputGroup([
+                    dbc.Input(id='list-in',placeholder='Example ... AFDGRR AFDAPX',type='text'),
+                    dbc.Button("Create Product List",id='submit-button', n_clicks=0),
+            ], style={'padding':'1em'}),
+                html.Div(id='list-out', style={'border': '2px gray solid', 'padding':'1em'},)])
         ),
-        dbc.Row(dbc.Col(html.Div(html.Hr()))),
-        html.Div([html.H3(children="Step 2: Choose Range of Years to Search"),]),
+        dbc.Row(dbc.Card(step_two, color="info", inverse=True), style={'padding':'1em'}),
+
         dbc.Row([
 
             dbc.Col(
@@ -66,7 +84,7 @@ app.layout = dbc.Container(
                 )
             )
     ],
-    style={"padding": "50px"},
+    style={"padding": "1em"},
     )
 
     ])

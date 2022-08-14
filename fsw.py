@@ -101,7 +101,7 @@ step_two = [
 step_three = [
             dbc.CardBody([html.H4("Step 3", className="card-title"),
                 html.H5(
-                    "Provide Details about how to search",
+                    "Provide Details About How to search",
                     className="card-text",
                 ),
             ])
@@ -168,7 +168,7 @@ app.layout = dbc.Container(
 
             dbc.Col(
                 html.Div([
-                html.H5("Search by {...} "),
+                html.H5("Search by { ... } "),
                     dbc.RadioItems(id="byForecast",
                     options=[
                         {"label": "Forecast", "value": True},

@@ -1,5 +1,4 @@
 from datetime import datetime
-from locale import D_FMT
 import numpy as np
 import dash
 from dash import html, dcc
@@ -126,16 +125,21 @@ app.layout = dbc.Container(
         dbc.Row(dbc.Card(step_two, color="info", inverse=True), style={'padding':'1em'}),
 
         dbc.Row([
+            html.Div([
+                dbc.Col(
+                    dcc.RangeSlider(
+                    id="slider-input",
+                    min=1996,
+                    max=this_year,
+                    step=1,
+                    value=[2010, 2020],
+                    marks={i: str(i) for i in range(1996,next_year)},
+                    ),style={'padding':'1.2em'},
+            ),
+            html.Div(id='slider-values', style={'border': '2px gray solid', 'padding':'1em'},)
 
-            dbc.Col(
-                dcc.RangeSlider(
-                id="slider",
-                min=1996,
-                max=this_year,
-                value=[2010, 2020],
-                marks={i: str(i) for i in range(1996,next_year)},
-                )
-            )
+    ])
+    
     ],
     style={"padding": "1em"},
     ),
@@ -162,6 +166,13 @@ def get_text_output(n_clicks):
         return text_data
     else:
         return ""
+
+@app.callback(Output(component_id='slider-values', component_property='children'),
+                [Input('slider-input',component_property='value')])
+def update_output(value):
+    start_year = value[0]
+    end_year = value[1]
+    return 'Start Year: {} ........ End Year: {}'.format(start_year,end_year)
 
 def make_dataframe(text):
     dts = []

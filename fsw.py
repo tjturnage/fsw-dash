@@ -101,7 +101,7 @@ step_two = [
 step_three = [
             dbc.CardBody([html.H4("Step 3", className="card-title"),
                 html.H5(
-                    "Provide Details About How to search",
+                    "Provide Details About How to Search",
                     className="card-text",
                 ),
             ])

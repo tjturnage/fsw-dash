@@ -66,11 +66,11 @@ except:
 
 card_content = [
             dbc.CardBody([html.H1("Forecast Search Wizard", className="card-title"),
-                html.H3(
-                    "An application to search National Weather Service Text Products by keywords",
-                    className="card-text",
-                ),
                 html.H4(
+                    "An application to search National Weather Service Text Products by keywords",
+                    className="card-text", style={'color':'rgb(52,152,219)', 'font-weight': 'bold', 'font-style': 'italic'}
+                ),
+                html.H5(
                     "Developed by Eric Allen (eric.allen@noaa.gov)",
                     className="card-text",
                 ),
@@ -81,8 +81,8 @@ card_content = [
 ]
 
 step_one = [
-            dbc.CardBody([html.H4("Step 1", className="card-title"),
-                html.H5(
+            dbc.CardBody([html.H5("Step 1", className="card-title"),
+                html.P(
                     "Enter Products in upper case and separated by spaces. Click to create product list.",
                     className="card-text",
                 ),
@@ -90,8 +90,8 @@ step_one = [
 ]
 
 step_two = [
-            dbc.CardBody([html.H4("Step 2", className="card-title"),
-                html.H5(
+            dbc.CardBody([html.H5("Step 2", className="card-title"),
+                html.P(
                     "Choose Range of Years to Search",
                     className="card-text",
                 ),
@@ -99,8 +99,8 @@ step_two = [
 ]
 
 step_three = [
-            dbc.CardBody([html.H4("Step 3", className="card-title"),
-                html.H5(
+            dbc.CardBody([html.H5("Step 3", className="card-title"),
+                html.P(
                     "Provide Details About How to Search",
                     className="card-text",
                 ),
@@ -108,9 +108,9 @@ step_three = [
 ]
 
 view_output = [
-            dbc.CardBody([html.H4("Output", className="card-title"),
-                html.H5(
-                    "Search Wizard Results",
+            dbc.CardBody([html.H5("Output", className="card-title"),
+                html.P(
+                    "Forecast Search Wizard Results",
                     className="card-text",
                 ),
             ])

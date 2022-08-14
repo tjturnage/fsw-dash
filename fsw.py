@@ -62,10 +62,12 @@ try:
 except:
     text_data = "not on instance!"
 
-#your_string = get_text_output()
+
+bold = {'font-weight': 'bold'}
+feedback = {'border': '2px gray solid', 'padding':'1em'}
 
 card_content = [
-            dbc.CardBody([html.H1("Forecast Search Wizard", className="card-title"),
+            dbc.CardBody([html.H1("Forecast Search Wizard", className="card-title",style={'font-weight': 'bold', 'font-style': 'italic'}),
                 html.H4(
                     "An application to search National Weather Service Text Products by keywords",
                     className="card-text", style={'color':'rgb(52,152,219)', 'font-weight': 'bold', 'font-style': 'italic'}
@@ -81,7 +83,7 @@ card_content = [
 ]
 
 step_one = [
-            dbc.CardBody([html.H5("Step 1", className="card-title"),
+            dbc.CardBody([html.H5("Step 1", className="card-title",style=bold),
                 html.P(
                     "Enter Products in upper case and separated by spaces. Click to create product list.",
                     className="card-text",
@@ -90,7 +92,7 @@ step_one = [
 ]
 
 step_two = [
-            dbc.CardBody([html.H5("Step 2", className="card-title"),
+            dbc.CardBody([html.H5("Step 2", className="card-title",style=bold),
                 html.P(
                     "Choose Range of Years to Search",
                     className="card-text",
@@ -99,7 +101,7 @@ step_two = [
 ]
 
 step_three = [
-            dbc.CardBody([html.H5("Step 3", className="card-title"),
+            dbc.CardBody([html.H5("Step 3", className="card-title",style=bold),
                 html.P(
                     "Provide Details About How to Search",
                     className="card-text",
@@ -108,7 +110,7 @@ step_three = [
 ]
 
 view_output = [
-            dbc.CardBody([html.H5("Output", className="card-title"),
+            dbc.CardBody([html.H5("Output", className="card-title", style=bold),
                 html.P(
                     "Forecast Search Wizard Results",
                     className="card-text",
@@ -116,7 +118,17 @@ view_output = [
             ])
 ]
 
+class FSW:
+    def __init__(self,input_word_list=['LAKE'], forecast_product_list=['AFDGRR'],start_year=2010,end_year=this_year,isAnd=False,byForecast=True,isGrep=True):
+        self.input_word_list = input_word_list
+        self.forecast_product_list = forecast_product_list
+        self.start_year = start_year
+        self.end_year = end_year
+        self.isAnd = isAnd
+        self.byForecast = byForecast
+        self.isGrep = isGrep
 
+script_args = FSW()
 
 app.layout = dbc.Container(
     html.Div([
@@ -129,7 +141,7 @@ app.layout = dbc.Container(
                     dbc.Input(id='list-in',placeholder='Example ... AFDGRR AFDAPX', type='text'),
                     dbc.Button("Create Product List",id='submit-button', n_clicks=0),
             ], style={'padding':'1em'}),
-                html.Div(id='list-out', style={'border': '2px gray solid', 'padding':'1em'},)])
+                html.Div(id='list-out', style=feedback,)])
         ),
         dbc.Row(dbc.Card(step_two, color="info", inverse=True), style={'padding':'1em'}),
         dbc.Row([
@@ -144,7 +156,7 @@ app.layout = dbc.Container(
                     marks={i: str(i) for i in range(1996,next_year)},
                     ),style={'padding':'1.2em'},
             ),
-            html.Div(id='slider-values', style={'border': '2px gray solid', 'padding':'1em'},)
+            html.Div(id='slider-values', style=feedback,)
 
     ])
     
@@ -156,41 +168,40 @@ app.layout = dbc.Container(
         dbc.Row([
             dbc.Col(
                 html.Div([
-                html.H5("Search for { ... } of the words"),
-                    dbc.RadioItems(id="isAnd",
-                    options=[
-                        {"label": "All", "value": True},
-                        {"label": "Any", "value": False},
-
-            ], style={'padding':'1em'}),
-                html.Div(id='isAnd-out', style={'border': '2px gray solid', 'padding':'1em'},)])
+                    html.H5("Search for { ... } of the words"),
+                        dbc.RadioItems(id="isAnd",
+                        options=[
+                            {"label": "All", "value": True},
+                            {"label": "Any", "value": False},
+                        ], value=True, style={'padding':'1em'}),
+                    html.Div(id="isAnd-out",style=feedback)
+                ])
             ),
 
             dbc.Col(
                 html.Div([
-                html.H5("Search by { ... } "),
-                    dbc.RadioItems(id="byForecast",
-                    options=[
-                        {"label": "Forecast", "value": True},
-                        {"label": "Day", "value": False},
-
-            ], style={'padding':'1em'}),
-                html.Div(id='byForecast-out', style={'border': '2px gray solid', 'padding':'1em'},)])
+                    html.H5("Search by { ... } "),
+                        dbc.RadioItems(id="byForecast",
+                        options=[
+                            {"label": "Forecast", "value": True},
+                            {"label": "Day", "value": False},
+                        ], value=True, style={'padding':'1em'}),
+                    html.Div(id="byForecast-out",style=feedback)
+                ])
             ),
 
             dbc.Col(
                 html.Div([
-                html.H5("Search for { ... } word or phrase"),
-                    dbc.RadioItems(id="isGrep",
-                    options=[
-                        {"label": "Part of (like GREP)", "value": True},
-                        {"label": "Entire", "value": False},
-
-            ], style={'padding':'1em'}),
-                html.Div(id='isGrep-out', style={'border': '2px gray solid', 'padding':'1em'},)])
+                    html.H5("Search for { ... } word or phrase"),
+                        dbc.RadioItems(id="isGrep",
+                        options=[
+                            {"label": "Part of (like GREP)", "value": True},
+                            {"label": "Entire", "value": False},
+                        ], value=True, style={'padding':'1em'}),
+                    html.Div(id="isGrep-out",style=feedback)
+                ])
             ),        
-    ]),
-    
+        ]),
         dbc.Row(dbc.Card(view_output, color="success", inverse=True), style={'padding':'1em'}),
         dbc.Row(dbc.Button("Click to Toggle Text Display (could take several seconds to load)",id="refresh-text", n_clicks=0), style={'padding':'1em'}),
         dbc.Row(html.Div(children=" ", id="new-text", style={'whiteSpace': 'pre-line', 'border': '2px gray solid', 'padding':'1em'}))
@@ -215,12 +226,38 @@ def get_text_output(n_clicks):
     else:
         return ""
 
+@app.callback(
+    Output("isAnd-out", "children"),
+    [Input("isAnd", "value"),],)
+def on_form_change(isAnd_value):
+    template = "isAnd = {}".format(isAnd_value)
+    script_args.isAnd = isAnd_value
+    return template
+
+@app.callback(
+    Output("byForecast-out", "children"),
+    [Input("byForecast", "value"),],)
+def on_form_change(byForecast_value):
+    template = "byForecast = {}".format(byForecast_value)
+    script_args.byForecast = byForecast_value
+    return template
+
+@app.callback(
+    Output("isGrep-out", "children"),
+    [Input("isGrep", "value"),],)
+def on_form_change(isGrep_value):
+    template = "isGrep = {}".format(isGrep_value)
+    script_args.isGrep = isGrep_value
+    return template
+
 @app.callback(Output(component_id='slider-values', component_property='children'),
                 [Input('slider-input',component_property='value')])
 def update_output(value):
     start_year = value[0]
+    script_args.start_year = start_year
     end_year = value[1]
-    return 'Start Year: {} ........ End Year: {}'.format(start_year,end_year)
+    script_args.end_year = end_year
+    return 'start_year = {} ........ end_year = {}'.format(start_year,end_year)
 
 def make_dataframe(text):
     dts = []

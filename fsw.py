@@ -98,6 +98,15 @@ step_two = [
             ])
 ]
 
+step_three = [
+            dbc.CardBody([html.H4("Step 3", className="card-title"),
+                html.H5(
+                    "Provide Details about how to search",
+                    className="card-text",
+                ),
+            ])
+]
+
 view_output = [
             dbc.CardBody([html.H4("Output", className="card-title"),
                 html.H5(
@@ -123,7 +132,6 @@ app.layout = dbc.Container(
                 html.Div(id='list-out', style={'border': '2px gray solid', 'padding':'1em'},)])
         ),
         dbc.Row(dbc.Card(step_two, color="info", inverse=True), style={'padding':'1em'}),
-
         dbc.Row([
             html.Div([
                 dbc.Col(
@@ -142,7 +150,47 @@ app.layout = dbc.Container(
     
     ],
     style={"padding": "1em"},
+    
     ),
+        dbc.Row(dbc.Card(step_three, color="info", inverse=True), style={'padding':'1em'}),
+        dbc.Row([
+            dbc.Col(
+                html.Div([
+                html.H5("Search for { ... } of the words"),
+                    dbc.RadioItems(id="isAnd",
+                    options=[
+                        {"label": "All", "value": True},
+                        {"label": "Any", "value": False},
+
+            ], style={'padding':'1em'}),
+                html.Div(id='isAnd-out', style={'border': '2px gray solid', 'padding':'1em'},)])
+            ),
+
+            dbc.Col(
+                html.Div([
+                html.H5("Search by {...} "),
+                    dbc.RadioItems(id="byForecast",
+                    options=[
+                        {"label": "Forecast", "value": True},
+                        {"label": "Day", "value": False},
+
+            ], style={'padding':'1em'}),
+                html.Div(id='byForecast-out', style={'border': '2px gray solid', 'padding':'1em'},)])
+            ),
+
+            dbc.Col(
+                html.Div([
+                html.H5("Search for { ... } word or phrase"),
+                    dbc.RadioItems(id="isGrep",
+                    options=[
+                        {"label": "Part of (like GREP)", "value": True},
+                        {"label": "Entire", "value": False},
+
+            ], style={'padding':'1em'}),
+                html.Div(id='isGrep-out', style={'border': '2px gray solid', 'padding':'1em'},)])
+            ),        
+    ]),
+    
         dbc.Row(dbc.Card(view_output, color="success", inverse=True), style={'padding':'1em'}),
         dbc.Row(dbc.Button("Click to Toggle Text Display (could take several seconds to load)",id="refresh-text", n_clicks=0), style={'padding':'1em'}),
         dbc.Row(html.Div(children=" ", id="new-text", style={'whiteSpace': 'pre-line', 'border': '2px gray solid', 'padding':'1em'}))

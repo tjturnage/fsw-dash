@@ -85,7 +85,7 @@ top_content = [
 step_one = [
             dbc.CardBody([html.H5("Step 1", className="card-title",style=bold),
                 html.P(
-                    "Enter Words or phrases you want to search for. This needs to be in a list format.",
+                    "Enter Words or phrases you want to search for. For phrases with a space, insert a comma.",
                     className="card-text",
                 ),
             ])
@@ -113,6 +113,24 @@ step_four = [
             dbc.CardBody([html.H5("Step 4", className="card-title",style=bold),
                 html.P(
                     "Provide Details About How to Search",
+                    className="card-text",
+                ),
+            ])
+]
+
+step_five = [
+            dbc.CardBody([html.H5("Step 5", className="card-title",style=bold),
+                html.P(
+                    "Click button to check your selections.",
+                    className="card-text",
+                ),
+            ])
+]
+
+step_six = [
+            dbc.CardBody([html.H5("Step 6", className="card-title",style=bold),
+                html.P(
+                    "Click button to run FSW (not yet).",
                     className="card-text",
                 ),
             ])
@@ -147,11 +165,11 @@ app.layout = dbc.Container(
         dbc.Row(
             html.Div([
                 dbc.InputGroup([
-                    dbc.Input(id='input_words_list',placeholder='Example ... ["SEA BREEZE", "SEABREEZE"]', type='text'),
+                    dbc.Input(id='input_words_list',placeholder='Example ... SEABREEZE SEA,BREEZE', type='text'),
                     dbc.Button("Submit Input Words",id='input_words_list_submit', n_clicks=0),
             ], style={'padding':'1em'}),
                 html.Div(id='input_words_list-out', style=feedback,)])
-        ),
+        ),    
         dbc.Row(dbc.Card(step_two, color="info", inverse=True), style={'padding':'1em'}),
         dbc.Row(
             html.Div([
@@ -161,7 +179,10 @@ app.layout = dbc.Container(
             ], style={'padding':'1em'}),
                 html.Div(id='forecast_product_list-out', style=feedback,)])
         ),
-        dbc.Row(dbc.Card(step_three, color="info", inverse=True), style={'padding':'1em'}),
+
+        #############
+        # Range Slider
+        #############        
         dbc.Row([
             html.Div([
                 dbc.Col(
@@ -175,57 +196,87 @@ app.layout = dbc.Container(
                     ),style={'padding':'1.2em'},
             ),
             html.Div(id='slider_values-out', style=feedback,)
+            ]),
 
-    ])
-    
-    ],
-    style={"padding": "1em"},
-    
-    ),
+        #############
+        # Search Methods
+        #############    
         dbc.Row(dbc.Card(step_four, color="info", inverse=True), style={'padding':'1em'}),
         dbc.Row([
             dbc.Col(
                 html.Div([
-                    html.H5("Search for { ... } of the words"),
-                        dbc.RadioItems(id="isAnd",
-                        options=[
-                            {"label": "All", "value": True},
-                            {"label": "Any", "value": False},
-                        ], value=True, style={'padding':'1em'}),
-                    html.Div(id="isAnd-out",style=feedback)
+                     html.H5("Search for { ... } of the words"),
+                         dbc.RadioItems(id="isAnd",
+                         options=[
+                             {"label": "All", "value": True},
+                             {"label": "Any", "value": False},
+                         ], value=True, style={'padding':'1em'}),
+                     html.Div(id="isAnd-out",style=feedback)
                 ])
             ),
 
             dbc.Col(
                 html.Div([
                     html.H5("Search by { ... } "),
-                        dbc.RadioItems(id="byForecast",
-                        options=[
-                            {"label": "Forecast", "value": True},
-                            {"label": "Day", "value": False},
-                        ], value=True, style={'padding':'1em'}),
-                    html.Div(id="byForecast-out",style=feedback)
-                ])
-            ),
-
+                         dbc.RadioItems(id="byForecast",
+                         options=[
+                             {"label": "Forecast", "value": True},
+                             {"label": "Day", "value": False},
+                         ], value=True, style={'padding':'1em'}),
+                     html.Div(id="byForecast-out",style=feedback)
+                    ])
+                ),
             dbc.Col(
                 html.Div([
                     html.H5("Search for { ... } word or phrase"),
-                        dbc.RadioItems(id="isGrep",
-                        options=[
-                            {"label": "Part of (like GREP)", "value": True},
-                            {"label": "Entire", "value": False},
-                        ], value=True, style={'padding':'1em'}),
-                    html.Div(id="isGrep-out",style=feedback)
-                ])
-            ),        
+                         dbc.RadioItems(id="isGrep",
+                         options=[
+                             {"label": "Part of (like grep)", "value": True},
+                             {"label": "Entire", "value": False},
+                         ], value=True, style={'padding':'1em'}),
+                     html.Div(id="isGrep-out",style=feedback)
+                    ])
+                ),
+
         ]),
+
+        #############
+        # Step five and six
+        #############  
+        dbc.Row([
+            dbc.Col(
+                html.Div([
+                dbc.Row(dbc.Card(step_five, color="info", inverse=True)),
+                dbc.Button("Check Selections",id='full_vars', n_clicks=0, style={'padding':'1em','width':'100%'}),
+                html.Div(id="full_vars-out",style=feedback)
+                ],
+                style={'padding':'1em'},
+
+                )
+            ),
+            dbc.Col(
+                html.Div([
+                dbc.Row(dbc.Card(step_six, color="info", inverse=True)),
+                dbc.Button("Launch FSW Script",id='run_script', n_clicks=0, style={'padding':'1em','width':'100%'}),
+                html.Div(id="run_script-out",style=feedback)
+                ],
+                style={'padding':'1em'})
+            ),
+        ],style={'padding':'1em'}),
+
+        #############
+        # View output
+        ############# 
         dbc.Row(dbc.Card(view_output, color="success", inverse=True), style={'padding':'1em'}),
         dbc.Row(dbc.Button("Click to Toggle Text Display (could take several seconds to load)",id="refresh-text", n_clicks=0), style={'padding':'1em'}),
         dbc.Row(html.Div(children=" ", id="new-text", style={'whiteSpace': 'pre-line', 'border': '2px gray solid', 'padding':'1em'}))
 
-    ])
+    ]),
+
+])
+
 )
+
 
 # input words
 @app.callback(Output("input_words_list-out", "children"),
@@ -233,8 +284,10 @@ app.layout = dbc.Container(
                 [State("input_words_list","value")])
 def create_list(n_clicks,myvalue):
     input_string = str(myvalue)
-    script_args.input_word_list = input_string
-    return str(input_string)
+    product_list = input_string.split(' ')
+    final_list = [x.replace(",", " ") for x in product_list]
+    script_args.input_word_list = final_list
+    return str(final_list)
 
 # product list
 @app.callback(Output("forecast_product_list-out", "children"),

@@ -155,7 +155,7 @@ class FSW:
         self.byForecast = byForecast
         self.isGrep = isGrep
 
-script_args = FSW()
+sa = FSW()
 
 app.layout = dbc.Container(
     html.Div([
@@ -286,7 +286,7 @@ def create_list(n_clicks,myvalue):
     input_string = str(myvalue)
     product_list = input_string.split(' ')
     final_list = [x.replace(",", " ") for x in product_list]
-    script_args.input_word_list = final_list
+    sa.input_word_list = final_list
     return str(final_list)
 
 # product list
@@ -296,7 +296,7 @@ def create_list(n_clicks,myvalue):
 def create_list(n_clicks,myvalue):
     input_string = str(myvalue)
     product_list = input_string.split(' ')
-    script_args.input_word_list = product_list
+    sa.forecast_product_list = product_list
     return str(product_list)
 
 # slider values
@@ -304,9 +304,9 @@ def create_list(n_clicks,myvalue):
                 [Input('slider_values',"value")])
 def update_output(value):
     start_year = value[0]
-    script_args.start_year = start_year
+    sa.start_year = start_year
     end_year = value[1]
-    script_args.end_year = end_year
+    sa.end_year = end_year
     return 'start_year = {} ........ end_year = {}'.format(start_year,end_year)
 
 @app.callback(
@@ -314,7 +314,7 @@ def update_output(value):
     [Input("isAnd", "value"),],)
 def on_form_change(isAnd_value):
     template = "isAnd = {}".format(isAnd_value)
-    script_args.isAnd = isAnd_value
+    sa.isAnd = isAnd_value
     return template
 
 @app.callback(
@@ -322,7 +322,7 @@ def on_form_change(isAnd_value):
     [Input("byForecast", "value"),],)
 def on_form_change(byForecast_value):
     template = "byForecast = {}".format(byForecast_value)
-    script_args.byForecast = byForecast_value
+    sa.byForecast = byForecast_value
     return template
 
 @app.callback(
@@ -330,7 +330,7 @@ def on_form_change(byForecast_value):
     [Input("isGrep", "value"),],)
 def on_form_change(isGrep_value):
     template = "isGrep = {}".format(isGrep_value)
-    script_args.isGrep = isGrep_value
+    sa.isGrep = isGrep_value
     return template
 
 @app.callback(Output("new-text", "children"),
@@ -340,6 +340,25 @@ def get_text_output(n_clicks):
         return text_data
     else:
         return ""
+
+@app.callback(Output("full_vars-out", "children"),
+                [Input("full_vars","n_clicks")],)   
+def get_full_vars(n_clicks):
+    new_line = '\n'
+    template = "Word list = {}{}Product list = {}{}start_year = {}{}end_year = {}{}isAnd = {}{}byForecast = {}{}isGrep = {}".format(sa.input_word_list,new_line,
+                                                                    sa.forecast_product_list,new_line,
+                                                                    sa.start_year,new_line,
+                                                                    sa.end_year,new_line,
+                                                                    sa.isAnd,new_line,
+                                                                    sa.byForecast,new_line,
+                                                                    sa.isGrep)
+    return template
+
+@app.callback(Output("run_script-out", "children"),
+                [Input("run_script","n_clicks")],)   
+def get_full_vars(n_clicks):
+    template = "Nothing to see here yet, even after {} button clicks!".format(n_clicks)
+    return template
 
 def make_dataframe(text):
     dts = []

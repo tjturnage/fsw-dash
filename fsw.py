@@ -280,7 +280,7 @@ app.layout = dbc.Container(
         #############
         # View output
         ############# 
-        dbc.Row(dbc.Button("Click to Update Script Output (could take several seconds)",color="success",id="refresh-text", n_clicks=0), style={'padding':'1em'}),
+        dbc.Row(dbc.Button("Click to refresh output",color="success",id="refresh-text", n_clicks=0), style={'padding':'1em'}),
         dbc.Row(html.Div(children=" ", id="new-text", style={'whiteSpace': 'pre-line', 'border': '2px gray solid', 'padding':'1em'}))
 
     ]),
@@ -395,7 +395,7 @@ def execute_script(n_clicks):
         check_text = get_text_data()
     #template = "Nothing to see here yet, even after {} button clicks!".format(n_clicks)
     while check_file == original_file or check_text == original_text:
-        time.sleep(3)
+        time.sleep(2)
     
     return "Script Completed! Click button below to refresh output."
 

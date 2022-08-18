@@ -266,7 +266,7 @@ app.layout = dbc.Container(
                 html.Div([
                 dbc.Row(dbc.Card(step_six, color="info", inverse=True)),
                 dbc.Button("Launch FSW Script",id='run_script', n_clicks=0, style={'padding':'1em','width':'100%'}),
-                html.Div(id="run_script-out",style=feedback)
+                html.Div(children="Will be notified here when script completes",id="run_script-out",style=feedback)
                 ],
                 style={'padding':'1em'})
             ),
@@ -276,7 +276,7 @@ app.layout = dbc.Container(
         # View output
         ############# 
         dbc.Row(dbc.Card(view_output, color="success", inverse=True), style={'padding':'1em'}),
-        dbc.Row(dbc.Button("Click to Toggle Text Display (could take several seconds to load)",id="refresh-text", n_clicks=0), style={'padding':'1em'}),
+        dbc.Row(dbc.Button("Click to Update SCript Output (could take several seconds)",id="refresh-text", n_clicks=0), style={'padding':'1em'}),
         dbc.Row(html.Div(children=" ", id="new-text", style={'whiteSpace': 'pre-line', 'border': '2px gray solid', 'padding':'1em'}))
 
     ]),
@@ -288,7 +288,7 @@ def arg_from_list(this_list):
     for x in this_list:
         fixed = x.replace(' ','_')
         cmd_str = cmd_str + fixed + ' '
-    print(cmd_str)
+    #print(cmd_str)
     return cmd_str
 
 # input words
@@ -380,7 +380,7 @@ def execute_script(n_clicks):
     cmd_str = f'cd /Forecast_Search_Wizard/RUN_ME ; python NAMELIST_args.py --word_list {words} --product_list {prods} --start_year {sy} --end_year {ey}'
     os.system(cmd_str)
     #template = "Nothing to see here yet, even after {} button clicks!".format(n_clicks)
-    return "Running script"
+    return "Script Completed! Click button below to view output."
 
 
 def make_dataframe(text):

@@ -259,8 +259,8 @@ app.layout = dbc.Container(
         dbc.Row([
             dbc.Col(
                 html.Div([
-                dbc.Row(dbc.Card(step_five, color="info", inverse=True)),
-                dbc.Button("Check Selections",id='full_vars', n_clicks=0, style={'padding':'1em','width':'100%'}),
+                #dbc.Row(dbc.Card(step_five, color="info", inverse=True)),
+                dbc.Button("Step 5: Click to Check Selections",id='full_vars', n_clicks=0, style={'padding':'1em','width':'100%'}),
                 html.Div(id="full_vars-out",style=feedback)
                 ],
                 style={'padding':'1em'},
@@ -269,8 +269,8 @@ app.layout = dbc.Container(
             ),
             dbc.Col(
                 html.Div([
-                dbc.Row(dbc.Card(step_six, color="info", inverse=True)),
-                dbc.Button("Launch FSW Script",id='run_script', n_clicks=0, style={'padding':'1em','width':'100%'}),
+                #dbc.Row(dbc.Card(step_six, color="info", inverse=True)),
+                dbc.Button("Step 6: Click to Launch FSW Script",id='run_script', n_clicks=0, style={'padding':'1em','width':'100%'}),
                 html.Div(children="Will be notified here when script completes",id="run_script-out",style=feedback)
                 ],
                 style={'padding':'1em'})
@@ -280,8 +280,7 @@ app.layout = dbc.Container(
         #############
         # View output
         ############# 
-        dbc.Row(dbc.Card(view_output, color="success", inverse=True), style={'padding':'1em'}),
-        dbc.Row(dbc.Button("Click to Update Script Output (could take several seconds)",id="refresh-text", n_clicks=0), style={'padding':'1em'}),
+        dbc.Row(dbc.Button("Click to Update Script Output (could take several seconds)",color="success",id="refresh-text", n_clicks=0), style={'padding':'1em'}),
         dbc.Row(html.Div(children=" ", id="new-text", style={'whiteSpace': 'pre-line', 'border': '2px gray solid', 'padding':'1em'}))
 
     ]),
@@ -389,17 +388,16 @@ def execute_script(n_clicks):
     cmd_str = f'cd /Forecast_Search_Wizard/RUN_ME ; python NAMELIST_args.py --word_list {words} --product_list {prods} --start_year {sy} --end_year {ey}'
     os.system(cmd_str)
     while check_file == original_file:
-        yield "Running Script"
         time.sleep(5)
         check_file = get_latest_dir_item()
     while check_text == original_text:
-        yield "Generating Text"
         time.sleep(3)
         check_text = get_text_data()
     #template = "Nothing to see here yet, even after {} button clicks!".format(n_clicks)
-    if check_file != original_file and check_text != original_text:
-        yield "Script Completed! Click button below to refresh output."
-        return
+    while check_file == original_file or check_text == original_text:
+        time.sleep(3)
+    
+    return "Script Completed! Click button below to refresh output."
 
 
 def make_dataframe(text):

@@ -41,8 +41,10 @@ try:
 except:
     print("Cant import!")
 
-def get_text_product():
+def get_text_data():
     fname = os.listdir(FSW_OUTPUT_DIR)[-1]
+    if 'NONE' in str(fname):
+        fname = os.listdir(FSW_OUTPUT_DIR)[-2]
     text_file_path = os.path.join(FSW_OUTPUT_DIR,fname)
     fin = open(text_file_path, 'r')
     text_data = fin.read()
@@ -68,13 +70,6 @@ def make_dataframe(text_data):
 
     #print(df_full)
     return df_full
-
-try:
-    text_data = get_text_product()
-    #df = make_dataframe(text_data)
-except:
-    text_data = "not on instance!"
-
 
 bold = {'font-weight': 'bold'}
 feedback = {'border': '2px gray solid', 'padding':'1em'}
@@ -357,10 +352,12 @@ def on_form_change(isGrep_value):
 @app.callback(Output("new-text", "children"),
                 [Input("refresh-text","n_clicks")],)
 def get_text_output(n_clicks):
-    if n_clicks%2 == 0:
-        return text_data
-    else:
-        return ""
+    try:
+        text_data = get_text_data()
+        #df = make_dataframe(text_data)
+    except:
+        text_data = "not on instance!"
+    return text_data
 
 @app.callback(Output("full_vars-out", "children"),
                 [Input("full_vars","n_clicks")],)   
@@ -384,6 +381,7 @@ def execute_script(n_clicks):
     os.system(cmd_str)
     #template = "Nothing to see here yet, even after {} button clicks!".format(n_clicks)
     return "Running script"
+
 
 def make_dataframe(text):
     dts = []

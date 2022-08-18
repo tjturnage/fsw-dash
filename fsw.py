@@ -35,9 +35,9 @@ except:
 try:
     os.chdir(RUN_DIR)
     sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-    from src.setup import setup
-    from src.driver import execute
-    from search_options.search_options import Option
+    #from src.setup import setup
+    #from src.driver import execute
+    #from search_options.search_options import Option
 except:
     print("Cant import!")
 
@@ -98,7 +98,7 @@ top_content = [
 step_one = [
             dbc.CardBody([html.H5("Step 1", className="card-title",style=bold),
                 html.P(
-                    "Enter Words or phrases you want to search for. For phrases with a space, insert a comma.",
+                    "Enter Words or phrases you want to search for, separating each by a comma.",
                     className="card-text",
                 ),
             ])
@@ -159,9 +159,9 @@ view_output = [
 ]
 
 class FSW:
-    def __init__(self,input_word_list=['LAKE'], forecast_product_list=['AFDGRR'],start_year=2010,end_year=this_year,isAnd=False,byForecast=True,isGrep=True):
-        self.input_word_list = input_word_list
-        self.forecast_product_list = forecast_product_list
+    def __init__(self,word_list=['LAKE'], product_list=['AFDGRR'],start_year=2010,end_year=this_year,isAnd=False,byForecast=True,isGrep=True):
+        self.word_list = word_list
+        self.product_list = product_list
         self.start_year = start_year
         self.end_year = end_year
         self.isAnd = isAnd
@@ -288,16 +288,27 @@ app.layout = dbc.Container(
     ])
 )
 
+def arg_from_list(this_list):
+    cmd_str = ''
+    for x in this_list:
+        fixed = x.replace(' ','_')
+        cmd_str = cmd_str + fixed + ' '
+    print(cmd_str)
+    return cmd_str
+
 # input words
 @app.callback(Output("input_words_list-out", "children"),
                 [Input("input_words_list_submit","n_clicks")],
                 [State("input_words_list","value")])
 def create_list(n_clicks,myvalue):
-    input_string = str(myvalue)
-    product_list = input_string.split(',')
+    this_str = str(myvalue)
+    fixed_str = this_str.replace(', ',',')
+    word_list = fixed_str.split(',')
     #final_list = [x.replace(",", " ") for x in product_list]
-    sa.input_word_list = product_list
-    return str(product_list)
+    #sa.arg_word_list =  [x.replace("_", " ") for x in product_list]
+    #sa.arg_word_list_str = 
+    sa.word_list = word_list
+    return str(sa.word_list)
 
 # product list
 @app.callback(Output("forecast_product_list-out", "children"),
@@ -306,8 +317,8 @@ def create_list(n_clicks,myvalue):
 def create_list(n_clicks,myvalue):
     input_string = str(myvalue)
     product_list = input_string.split(' ')
-    sa.forecast_product_list = product_list
-    return str(product_list)
+    sa.product_list = product_list
+    return str(sa.product_list)
 
 # slider values
 @app.callback(Output("slider_values-out", "children"),
@@ -354,8 +365,8 @@ def get_text_output(n_clicks):
 @app.callback(Output("full_vars-out", "children"),
                 [Input("full_vars","n_clicks")],)   
 def get_full_vars(n_clicks):
-    template = "Word list = {} ...... Product list = {} ...... start_year = {} ...... end_year = {}".format(sa.input_word_list,
-                                                                    sa.forecast_product_list,
+    template = "Word list = {} ...... Product list = {} ...... start_year = {} ...... end_year = {}".format(sa.word_list,
+                                                                    sa.product_list,
                                                                     sa.start_year,
                                                                     sa.end_year,
 )
@@ -365,9 +376,14 @@ def get_full_vars(n_clicks):
 @app.callback(Output("run_script-out", "children"),
                 [Input("run_script","n_clicks")],)   
 def execute_script(n_clicks):
-    os.chdir(RUN_DIR)
-    template = "Nothing to see here yet, even after {} button clicks!".format(n_clicks)
-    return template
+    words = arg_from_list(sa.word_list)
+    prods = arg_from_list(sa.product_list)
+    sy = sa.start_year
+    ey = sa.end_year
+    cmd_str = f'cd /Forecast_Search_Wizard/RUN_ME ; python NAMELIST_args.py --word_list {words} --product_list {prods} --start_year {sy} --end_year {ey}'
+    os.system(cmd_str)
+    #template = "Nothing to see here yet, even after {} button clicks!".format(n_clicks)
+    return "Running script"
 
 def make_dataframe(text):
     dts = []

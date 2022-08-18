@@ -397,8 +397,9 @@ def execute_script(n_clicks):
         time.sleep(3)
         check_text = get_text_data()
     #template = "Nothing to see here yet, even after {} button clicks!".format(n_clicks)
-    yield "Script Completed! Click button below to refresh output."
-    return
+    if check_file != original_file and check_text != original_text:
+        yield "Script Completed! Click button below to refresh output."
+        return
 
 
 def make_dataframe(text):

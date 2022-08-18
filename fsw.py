@@ -378,17 +378,24 @@ def get_full_vars(n_clicks):
 @app.callback(Output("run_script-out", "children"),
                 [Input("run_script","n_clicks")],)   
 def execute_script(n_clicks):
-    original = get_latest_dir_item()
-    check = original
+    original_file = get_latest_dir_item()
+    check_file = original_file
+    original_text = get_text_data()
+    check_text = original_text
+
+
     words = arg_from_list(sa.word_list)
     prods = arg_from_list(sa.product_list)
     sy = sa.start_year
     ey = sa.end_year
     cmd_str = f'cd /Forecast_Search_Wizard/RUN_ME ; python NAMELIST_args.py --word_list {words} --product_list {prods} --start_year {sy} --end_year {ey}'
     os.system(cmd_str)
-    while check == original:
+    while check_file == original_file:
         time.sleep(10)
-        check = get_latest_dir_item()
+        check_file = get_latest_dir_item()
+    while check_text == original_text:
+        time.sleep(3)
+        check_text = get_text_data()
     #template = "Nothing to see here yet, even after {} button clicks!".format(n_clicks)
     return "Script Completed! Click button below to refresh output."
 

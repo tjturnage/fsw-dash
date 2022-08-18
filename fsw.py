@@ -9,6 +9,7 @@ import pandas as pd
 #import glob
 import sys
 import os
+import time
 
 #sys.path.append('/data/scripts/resources')
 
@@ -50,6 +51,10 @@ def get_text_data():
     text_data = fin.read()
     fin.close()
     return text_data
+
+def get_latest_dir_item():
+    fname = os.listdir(FSW_OUTPUT_DIR)[-1]
+    return str(fname)
 
 def make_dataframe(text_data):
     lines = text_data.split('\n')
@@ -276,7 +281,7 @@ app.layout = dbc.Container(
         # View output
         ############# 
         dbc.Row(dbc.Card(view_output, color="success", inverse=True), style={'padding':'1em'}),
-        dbc.Row(dbc.Button("Click to Update SCript Output (could take several seconds)",id="refresh-text", n_clicks=0), style={'padding':'1em'}),
+        dbc.Row(dbc.Button("Click to Update Script Output (could take several seconds)",id="refresh-text", n_clicks=0), style={'padding':'1em'}),
         dbc.Row(html.Div(children=" ", id="new-text", style={'whiteSpace': 'pre-line', 'border': '2px gray solid', 'padding':'1em'}))
 
     ]),
@@ -373,14 +378,19 @@ def get_full_vars(n_clicks):
 @app.callback(Output("run_script-out", "children"),
                 [Input("run_script","n_clicks")],)   
 def execute_script(n_clicks):
+    original = get_latest_dir_item()
+    check = original
     words = arg_from_list(sa.word_list)
     prods = arg_from_list(sa.product_list)
     sy = sa.start_year
     ey = sa.end_year
     cmd_str = f'cd /Forecast_Search_Wizard/RUN_ME ; python NAMELIST_args.py --word_list {words} --product_list {prods} --start_year {sy} --end_year {ey}'
     os.system(cmd_str)
+    while check == original:
+        time.sleep(10)
+        check = get_latest_dir_item()
     #template = "Nothing to see here yet, even after {} button clicks!".format(n_clicks)
-    return "Script Completed! Click button below to view output."
+    return "Script Completed! Click button below to refresh output."
 
 
 def make_dataframe(text):

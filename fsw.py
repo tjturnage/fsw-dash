@@ -7,7 +7,10 @@ from dash.dependencies import Input, Output,State
 import plotly.graph_objs as go
 import pandas as pd
 #import glob
+import sys
 import os
+
+#sys.path.append('/data/scripts/resources')
 
 app = dash.Dash(__name__, external_stylesheets= [dbc.themes.DARKLY])#, 'https://codepen.io/chriddyp/pen/bWLwgP.css'])
 app.title = "Forecast Search Wizard"
@@ -21,12 +24,22 @@ try:
     root_dir = '/data'
     FSW_DIR = '/Forecast_Search_Wizard'
     DATA_DIR = os.path.join(root_dir, 'TEXT_DATA')
+    RUN_DIR = os.path.join(root_dir, 'RUN_ME')
     print(DATA_DIR)
     FSW_OUTPUT_DIR = os.path.join(FSW_DIR,'FSW_OUTPUT')
 
 except:
     root_dir = 'C:/data/'
     #root_dir = '/home/tjturnage/'
+
+try:
+    os.chdir(FSW_DIR)
+    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+    from src.setup import setup
+    from src.driver import execute
+    from search_options.search_options import Option
+except:
+    print("Cant import!")
 
 def get_text_product():
     fname = os.listdir(FSW_OUTPUT_DIR)[-1]
@@ -165,7 +178,7 @@ app.layout = dbc.Container(
         dbc.Row(
             html.Div([
                 dbc.InputGroup([
-                    dbc.Input(id='input_words_list',placeholder='Example ... SEABREEZE SEA,BREEZE', type='text'),
+                    dbc.Input(id='input_words_list',placeholder='Example ... SEABREEZE, SEA BREEZE', type='text'),
                     dbc.Button("Submit Input Words",id='input_words_list_submit', n_clicks=0),
             ], style={'padding':'1em'}),
                 html.Div(id='input_words_list-out', style=feedback,)])
@@ -272,11 +285,8 @@ app.layout = dbc.Container(
         dbc.Row(html.Div(children=" ", id="new-text", style={'whiteSpace': 'pre-line', 'border': '2px gray solid', 'padding':'1em'}))
 
     ]),
-
-])
-
+    ])
 )
-
 
 # input words
 @app.callback(Output("input_words_list-out", "children"),
@@ -284,10 +294,10 @@ app.layout = dbc.Container(
                 [State("input_words_list","value")])
 def create_list(n_clicks,myvalue):
     input_string = str(myvalue)
-    product_list = input_string.split(' ')
-    final_list = [x.replace(",", " ") for x in product_list]
-    sa.input_word_list = final_list
-    return str(final_list)
+    product_list = input_string.split(',')
+    #final_list = [x.replace(",", " ") for x in product_list]
+    sa.input_word_list = product_list
+    return str(product_list)
 
 # product list
 @app.callback(Output("forecast_product_list-out", "children"),
@@ -344,19 +354,18 @@ def get_text_output(n_clicks):
 @app.callback(Output("full_vars-out", "children"),
                 [Input("full_vars","n_clicks")],)   
 def get_full_vars(n_clicks):
-    new_line = '\n'
-    template = "Word list = {}{}Product list = {}{}start_year = {}{}end_year = {}{}isAnd = {}{}byForecast = {}{}isGrep = {}".format(sa.input_word_list,new_line,
-                                                                    sa.forecast_product_list,new_line,
-                                                                    sa.start_year,new_line,
-                                                                    sa.end_year,new_line,
-                                                                    sa.isAnd,new_line,
-                                                                    sa.byForecast,new_line,
-                                                                    sa.isGrep)
+    template = "Word list = {} ...... Product list = {} ...... start_year = {} ...... end_year = {}".format(sa.input_word_list,
+                                                                    sa.forecast_product_list,
+                                                                    sa.start_year,
+                                                                    sa.end_year,
+)
+
     return template
 
 @app.callback(Output("run_script-out", "children"),
                 [Input("run_script","n_clicks")],)   
-def get_full_vars(n_clicks):
+def execute_script(n_clicks):
+    os.chdir(RUN_DIR)
     template = "Nothing to see here yet, even after {} button clicks!".format(n_clicks)
     return template
 

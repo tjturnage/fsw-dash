@@ -24,7 +24,7 @@ try:
     root_dir = '/data'
     FSW_DIR = '/Forecast_Search_Wizard'
     DATA_DIR = os.path.join(root_dir, 'TEXT_DATA')
-    RUN_DIR = os.path.join(root_dir, 'RUN_ME')
+    RUN_DIR = os.path.join(FSW_DIR, 'RUN_ME')
     print(DATA_DIR)
     FSW_OUTPUT_DIR = os.path.join(FSW_DIR,'FSW_OUTPUT')
 
@@ -33,7 +33,7 @@ except:
     #root_dir = '/home/tjturnage/'
 
 try:
-    os.chdir(FSW_DIR)
+    os.chdir(RUN_DIR)
     sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
     from src.setup import setup
     from src.driver import execute

@@ -331,10 +331,10 @@ def show_download_button(n_clicks, text):
         return
     # turn text area content into file
     #filename = f"{uuid.uuid1()}.txt"
-    filename = f"{uuid.uuid1()}.txt"
-    path = f"downloadable/{filename}"
-    with open(path, "w") as file:
-        file.write(text)
+    #filename = f"{uuid.uuid1()}.txt"
+    path = sa.fpath
+    #with open(path, "w") as file:
+    #    file.write(text)
     uri = path
     return [build_download_button(uri)]
 

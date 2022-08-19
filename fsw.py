@@ -156,7 +156,7 @@ view_output = [
 ]
 
 class FSW:
-    def __init__(self,word_list=['LAKE'], product_list=['AFDGRR'],start_year=2010,end_year=this_year,isAnd=False,byForecast=True,isGrep=True):
+    def __init__(self,word_list=['LAKE'], product_list=['AFDGRR'],start_year=2010,end_year=this_year,isAnd=False,byForecast=True,isGrep=True,fname=None):
         self.word_list = word_list
         self.product_list = product_list
         self.start_year = start_year
@@ -164,6 +164,7 @@ class FSW:
         self.isAnd = isAnd
         self.byForecast = byForecast
         self.isGrep = isGrep
+        self.fname = fname
 
 sa = FSW()
 
@@ -280,16 +281,10 @@ app.layout = dbc.Container(
         #############
          html.Div(className="section",
         children=[
-        dcc.Textarea(
-            id="text-area",
-            className="textarea",
-            placeholder='Enter a value...',
-            style={'width': '300px'}
-        ),
-        html.Button(
+        dbc.Button(
             id="enter-button",
             className="button is-large is-outlined",
-            children=["enter"]
+            children=["Click to download file"]
         ),
         html.Div(
             id="download-area",
@@ -330,15 +325,12 @@ def build_download_button(uri):
     Output("download-area", "children"),
     [
         Input("enter-button", "n_clicks")
-    ],
-    [
-        State("text-area", "value")
-    ]
-)
+    ])
 def show_download_button(n_clicks, text):
     if text == None:
         return
     # turn text area content into file
+    #filename = f"{uuid.uuid1()}.txt"
     filename = f"{uuid.uuid1()}.txt"
     path = f"downloadable/{filename}"
     with open(path, "w") as file:
@@ -348,10 +340,11 @@ def show_download_button(n_clicks, text):
 
 @app.server.route('/download/<path:path>')
 def serve_static(path):
-    fname = get_latest_dir_item()
+    sa.fname = get_latest_dir_item()
+    sa.fpath = os.path.join(os.path.join(FSW_DIR,sa.fname))
     #root_dir = os.getcwd()
     return flask.send_from_directory(
-        os.path.join(os.path.join(FSW_DIR,fname)), path
+        sa.fpath, path
     )
 
 def get_latest_dir_item():

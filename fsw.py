@@ -131,24 +131,6 @@ step_four = [
             ])
 ]
 
-step_five = [
-            dbc.CardBody([html.H5("Step 5", className="card-title",style=bold),
-                html.P(
-                    "Click button to check your selections.",
-                    className="card-text",
-                ),
-            ])
-]
-
-step_six = [
-            dbc.CardBody([html.H5("Step 6", className="card-title",style=bold),
-                html.P(
-                    "Click button to run FSW (not yet).",
-                    className="card-text",
-                ),
-            ])
-]
-
 view_output = [
             dbc.CardBody([html.H5("Output", className="card-title", style=bold),
                 html.P(
@@ -271,7 +253,7 @@ app.layout = dbc.Container(
                 html.Div([
                 #dbc.Row(dbc.Card(step_six, color="info", inverse=True)),
                 dbc.Button("Step 6: Click to Launch FSW Script",id='run_script', n_clicks=0, style={'padding':'1em','width':'100%'}),
-                html.Div(children="Will be notified here when script completes",id="run_script-out",style=feedback)
+                html.Div(children="You'll be notified here when the script completes ...",id="run_script-out",style=feedback)
                 ],
                 style={'padding':'1em'})
             ),
@@ -303,9 +285,6 @@ def create_list(n_clicks,myvalue):
     this_str = str(myvalue)
     fixed_str = this_str.replace(', ',',')
     word_list = fixed_str.split(',')
-    #final_list = [x.replace(",", " ") for x in product_list]
-    #sa.arg_word_list =  [x.replace("_", " ") for x in product_list]
-    #sa.arg_word_list_str = 
     sa.word_list = word_list
     return str(sa.word_list)
 

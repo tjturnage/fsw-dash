@@ -17,7 +17,7 @@
 
 from hashlib import new
 
-# get its attention
+# get its attention again
 test = ['SEA BREEZE', 'SEABREEZE', 'HAPPY']
 mystr = ''
 for t in test:

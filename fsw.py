@@ -388,14 +388,13 @@ def execute_script(n_clicks):
     cmd_str = f'cd /Forecast_Search_Wizard/RUN_ME ; python NAMELIST_args.py --word_list {words} --product_list {prods} --start_year {sy} --end_year {ey}'
     os.system(cmd_str)
     while check_file == original_file:
-        time.sleep(5)
-        check_file = get_latest_dir_item()
-    while check_text == original_text:
-        time.sleep(3)
-        check_text = get_text_data()
-    #template = "Nothing to see here yet, even after {} button clicks!".format(n_clicks)
-    while check_file == original_file or check_text == original_text:
         time.sleep(2)
+        check_file = get_latest_dir_item()
+    while check_text[0:200] == original_text[0:200]:
+        time.sleep(10)
+        check_text = get_text_data()
+    while check_file == original_file or check_text == original_text:
+        time.sleep(5)
     
     return "Script Completed! Click button below to refresh output."
 

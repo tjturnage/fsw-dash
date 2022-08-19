@@ -1,15 +1,19 @@
+
+import os
 from datetime import datetime
-import numpy as np
 import dash
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output,State
-import plotly.graph_objs as go
+import uuid
+import flask
+
 import pandas as pd
-#import glob
 import sys
-import os
+
 import time
+import plotly.graph_objs as go
+import numpy as np
 
 #sys.path.append('/data/scripts/resources')
 
@@ -51,10 +55,6 @@ def get_text_data():
     text_data = fin.read()
     fin.close()
     return text_data
-
-def get_latest_dir_item():
-    fname = os.listdir(FSW_OUTPUT_DIR)[-1]
-    return str(fname)
 
 def make_dataframe(text_data):
     lines = text_data.split('\n')
@@ -104,6 +104,12 @@ step_one = [
             ])
 ]
 
+step_one = [
+            dbc.CardBody([html.H5("Enter Words or Phrases you want to search for, separating each by a comma. Then click button to submit.", 
+            className="card-text"),
+            ])
+]
+
 step_two = [
             dbc.CardBody([html.H5("Step 2", className="card-title",style=bold),
                 html.P(
@@ -112,6 +118,14 @@ step_two = [
                 ),
             ])
 ]
+
+
+step_two = [
+            dbc.CardBody([html.H5("Enter Products in upper case and separated by spaces. Click to create product list.",
+            className="card-text"),
+            ])
+]
+
 
 step_three = [
             dbc.CardBody([html.H5("Step 3", className="card-title",style=bold),
@@ -122,12 +136,13 @@ step_three = [
             ])
 ]
 
+step_three = [
+            dbc.CardBody([html.H5("Choose Range of Years to Search", className="card-text"),
+            ])
+]
+
 step_four = [
-            dbc.CardBody([html.H5("Step 4", className="card-title",style=bold),
-                html.P(
-                    "Provide Details About How to Search",
-                    className="card-text",
-                ),
+            dbc.CardBody([html.H5("Provide Details About How to Search", className="card-text"),
             ])
 ]
 
@@ -177,7 +192,8 @@ app.layout = dbc.Container(
 
         #############
         # Range Slider
-        #############        
+        #############
+        dbc.Row(dbc.Card(step_three, color="info", inverse=True), style={'padding':'1em'}),
         dbc.Row([
             html.Div([
                 dbc.Col(
@@ -241,18 +257,18 @@ app.layout = dbc.Container(
         dbc.Row([
             dbc.Col(
                 html.Div([
-                #dbc.Row(dbc.Card(step_five, color="info", inverse=True)),
-                dbc.Button("Step 5: Click to Check Selections",id='full_vars', n_clicks=0, style={'padding':'1em','width':'100%'}),
+                dbc.Button("Click Here to Check Selections",id='full_vars', n_clicks=0, style={'padding':'1em','width':'100%'}),
                 html.Div(id="full_vars-out",style=feedback)
                 ],
                 style={'padding':'1em'},
 
                 )
-            ),
+            ),]),
+
+        dbc.Row([
             dbc.Col(
                 html.Div([
-                #dbc.Row(dbc.Card(step_six, color="info", inverse=True)),
-                dbc.Button("Step 6: Click to Launch FSW Script",id='run_script', n_clicks=0, style={'padding':'1em','width':'100%'}),
+                dbc.Button("Click Here to Launch FSW Script",id='run_script', n_clicks=0, style={'padding':'1em','width':'100%'}),
                 html.Div(children="You'll be notified here when the script completes ...",id="run_script-out",style=feedback)
                 ],
                 style={'padding':'1em'})
@@ -261,20 +277,96 @@ app.layout = dbc.Container(
 
         #############
         # View output
-        ############# 
-        dbc.Row(dbc.Button("Click to refresh output (this could take a while)",color="success",id="refresh-text", n_clicks=0), style={'padding':'1em'}),
-        dbc.Row(html.Div(children=" ", id="new-text", style={'whiteSpace': 'pre-line', 'border': '2px gray solid', 'padding':'1em'}))
-
+        #############
+         html.Div(className="section",
+        children=[
+        dcc.Textarea(
+            id="text-area",
+            className="textarea",
+            placeholder='Enter a value...',
+            style={'width': '300px'}
+        ),
+        html.Button(
+            id="enter-button",
+            className="button is-large is-outlined",
+            children=["enter"]
+        ),
+        html.Div(
+            id="download-area",
+            className="block",
+            children=[]
+        )
+    ]),
+        #dbc.Row(dbc.Button("Click to refresh output (this could take a while)",color="success",id="refresh-text", n_clicks=0), style={'padding':'1em'}),
+        #dbc.Row(html.Div(children=" ", id="new-text", style={'whiteSpace': 'pre-line', 'border': '2px gray solid', 'padding':'1em'})),
+        #html.Div[
+        #dbc.Row(dbc.Button("Download Textr",color="success",id="download-text-btn", n_clicks=0), style={'padding':'1.5em'}),
+        #dcc.Download(id="download-text")]
     ]),
     ])
 )
+
+# ----------------------------------------
+### Download Setup
+# ----------------------------------
+def build_download_button(uri):
+    """Generates a download button for the resource"""
+    button = html.Form(
+        action=uri,
+        method="get",
+        children=[
+            html.Button(
+                className="button",
+                type="submit",
+                children=[
+                    "download"
+                ]
+            )
+        ]
+    )
+    return button
+
+@app.callback(
+    Output("download-area", "children"),
+    [
+        Input("enter-button", "n_clicks")
+    ],
+    [
+        State("text-area", "value")
+    ]
+)
+def show_download_button(n_clicks, text):
+    if text == None:
+        return
+    # turn text area content into file
+    filename = f"{uuid.uuid1()}.txt"
+    path = f"downloadable/{filename}"
+    with open(path, "w") as file:
+        file.write(text)
+    uri = path
+    return [build_download_button(uri)]
+
+@app.server.route('/download/<path:path>')
+def serve_static(path):
+    fname = get_latest_dir_item()
+    #root_dir = os.getcwd()
+    return flask.send_from_directory(
+        os.path.join(os.path.join(FSW_DIR,fname)), path
+    )
+
+def get_latest_dir_item():
+    fname = os.listdir(FSW_OUTPUT_DIR)[-1]
+    return str(fname)
+
+# ----------------------------------------
+### End Download Setup
+# ----------------------------------------
 
 def arg_from_list(this_list):
     cmd_str = ''
     for x in this_list:
         fixed = x.replace(' ','_')
         cmd_str = cmd_str + fixed + ' '
-    #print(cmd_str)
     return cmd_str
 
 # input words
@@ -287,6 +379,7 @@ def create_list(n_clicks,myvalue):
     word_list = fixed_str.split(',')
     sa.word_list = word_list
     return str(sa.word_list)
+
 
 # product list
 @app.callback(Output("forecast_product_list-out", "children"),
@@ -367,15 +460,10 @@ def execute_script(n_clicks):
     cmd_str = f'cd /Forecast_Search_Wizard/RUN_ME ; python NAMELIST_args.py --word_list {words} --product_list {prods} --start_year {sy} --end_year {ey}'
     os.system(cmd_str)
     while check_file == original_file:
-        time.sleep(2)
+        time.sleep(5)
         check_file = get_latest_dir_item()
-    #while check_text[0:200] == original_text[0:200]:
-    #    time.sleep(10)
-    #    check_text = get_text_data()
-    while check_file == original_file:
-        time.sleep(1)
-    
-    return "Script Completed! Click button below to generate output."
+    if check_file != original_file:
+        return "Script Completed! Click link below to download output file."
 
 
 def make_dataframe(text):

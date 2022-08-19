@@ -262,7 +262,7 @@ app.layout = dbc.Container(
         #############
         # View output
         ############# 
-        dbc.Row(dbc.Button("Click to refresh output",color="success",id="refresh-text", n_clicks=0), style={'padding':'1em'}),
+        dbc.Row(dbc.Button("Click to refresh output (this could take a while)",color="success",id="refresh-text", n_clicks=0), style={'padding':'1em'}),
         dbc.Row(html.Div(children=" ", id="new-text", style={'whiteSpace': 'pre-line', 'border': '2px gray solid', 'padding':'1em'}))
 
     ]),
@@ -369,13 +369,13 @@ def execute_script(n_clicks):
     while check_file == original_file:
         time.sleep(2)
         check_file = get_latest_dir_item()
-    while check_text[0:200] == original_text[0:200]:
-        time.sleep(10)
-        check_text = get_text_data()
-    while check_file == original_file or check_text == original_text:
-        time.sleep(5)
+    #while check_text[0:200] == original_text[0:200]:
+    #    time.sleep(10)
+    #    check_text = get_text_data()
+    while check_file == original_file:
+        time.sleep(1)
     
-    return "Script Completed! Click button below to refresh output."
+    return "Script Completed! Click button below to generate output."
 
 
 def make_dataframe(text):

@@ -1,4 +1,3 @@
-
 import os
 from datetime import datetime
 import dash
@@ -20,6 +19,7 @@ import numpy as np
 app = dash.Dash(__name__, external_stylesheets= [dbc.themes.DARKLY])#, 'https://codepen.io/chriddyp/pen/bWLwgP.css'])
 app.title = "Forecast Search Wizard"
 
+# set end of year slider based on current year
 now = datetime.utcnow()
 this_year = now.year
 next_year = this_year + 1
@@ -40,21 +40,8 @@ except:
 try:
     os.chdir(RUN_DIR)
     sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-    #from src.setup import setup
-    #from src.driver import execute
-    #from search_options.search_options import Option
 except:
     print("Cant import!")
-
-def get_text_data():
-    fname = os.listdir(FSW_OUTPUT_DIR)[-1]
-    if 'NONE' in str(fname):
-        fname = os.listdir(FSW_OUTPUT_DIR)[-2]
-    text_file_path = os.path.join(FSW_OUTPUT_DIR,fname)
-    fin = open(text_file_path, 'r')
-    text_data = fin.read()
-    fin.close()
-    return text_data
 
 def make_dataframe(text_data):
     lines = text_data.split('\n')
@@ -96,43 +83,14 @@ top_content = [
 ]
 
 step_one = [
-            dbc.CardBody([html.H5("Step 1", className="card-title",style=bold),
-                html.P(
-                    "Enter Words or phrases you want to search for, separating each by a comma.",
-                    className="card-text",
-                ),
-            ])
-]
-
-step_one = [
             dbc.CardBody([html.H5("Enter Words or Phrases you want to search for, separating each by a comma. Then click button to submit.", 
             className="card-text"),
             ])
 ]
 
 step_two = [
-            dbc.CardBody([html.H5("Step 2", className="card-title",style=bold),
-                html.P(
-                    "Enter Products in upper case and separated by spaces. Click to create product list.",
-                    className="card-text",
-                ),
-            ])
-]
-
-
-step_two = [
             dbc.CardBody([html.H5("Enter Products in upper case and separated by spaces. Click to create product list.",
             className="card-text"),
-            ])
-]
-
-
-step_three = [
-            dbc.CardBody([html.H5("Step 3", className="card-title",style=bold),
-                html.P(
-                    "Choose Range of Years to Search",
-                    className="card-text",
-                ),
             ])
 ]
 
@@ -155,8 +113,11 @@ view_output = [
             ])
 ]
 
+# ----------------------------------------
+# Set up class
+# ----------------------------------------
 class FSW:
-    def __init__(self,word_list=['LAKE'], product_list=['AFDGRR'],start_year=2010,end_year=this_year,isAnd=False,byForecast=True,isGrep=True,fname=None):
+    def __init__(self,word_list=None, product_list=None,start_year=2010,end_year=this_year,isAnd=False,byForecast=True,isGrep=True,made_wl=False,made_pl=False,fname=None,fpath=None):
         self.word_list = word_list
         self.product_list = product_list
         self.start_year = start_year
@@ -164,10 +125,16 @@ class FSW:
         self.isAnd = isAnd
         self.byForecast = byForecast
         self.isGrep = isGrep
+        self.made_wl = made_wl
+        self.made_pl = made_pl
         self.fname = fname
+        self.fpath = fpath
 
 sa = FSW()
 
+# ----------------------------------------
+# Webpage layout
+# ----------------------------------------
 app.layout = dbc.Container(
     html.Div([
         dbc.Row(dbc.Col(html.Div(html.Hr()))),
@@ -279,31 +246,27 @@ app.layout = dbc.Container(
         #############
         # View output
         #############
-         html.Div(className="section",
-        children=[
-        dbc.Button(
-            id="enter-button",
-            className="button is-large is-outlined",
-            children=["Click to download file"]
+        html.Div(className="section",
+            children=[
+                dbc.Button(
+                    id="enter-button",
+                    className="button is-large is-outlined",
+                    children=["Click to download file"]
+                    ),
+                html.Div(
+                    id="download-area",
+                    className="block",
+                    children=[]
+                    )
+                ]),
+            ]
         ),
-        html.Div(
-            id="download-area",
-            className="block",
-            children=[]
-        )
-    ]),
-        #dbc.Row(dbc.Button("Click to refresh output (this could take a while)",color="success",id="refresh-text", n_clicks=0), style={'padding':'1em'}),
-        #dbc.Row(html.Div(children=" ", id="new-text", style={'whiteSpace': 'pre-line', 'border': '2px gray solid', 'padding':'1em'})),
-        #html.Div[
-        #dbc.Row(dbc.Button("Download Textr",color="success",id="download-text-btn", n_clicks=0), style={'padding':'1.5em'}),
-        #dcc.Download(id="download-text")]
-    ]),
     ])
 )
 
 # ----------------------------------------
 ### Download Setup
-# ----------------------------------
+# ----------------------------------------
 def build_download_button(uri):
     """Generates a download button for the resource"""
     button = html.Form(
@@ -326,13 +289,12 @@ def build_download_button(uri):
     [
         Input("enter-button", "n_clicks")
     ])
-def show_download_button(n_clicks, text):
-    if text == None:
-        return
+def show_download_button(n_clicks):
     # turn text area content into file
     #filename = f"{uuid.uuid1()}.txt"
     #filename = f"{uuid.uuid1()}.txt"
     path = sa.fpath
+    print(path)
     #with open(path, "w") as file:
     #    file.write(text)
     uri = path
@@ -366,23 +328,39 @@ def arg_from_list(this_list):
 @app.callback(Output("input_words_list-out", "children"),
                 [Input("input_words_list_submit","n_clicks")],
                 [State("input_words_list","value")])
-def create_list(n_clicks,myvalue):
-    this_str = str(myvalue)
-    fixed_str = this_str.replace(', ',',')
-    word_list = fixed_str.split(',')
-    sa.word_list = word_list
-    return str(sa.word_list)
+def create_word_list(n_clicks,myvalue):
+    original_word_list = sa.word_list
+    if n_clicks > 0:
+        this_str = str(myvalue)
+        fixed_str = this_str.replace(', ',',')
+        word_list = fixed_str.split(',')
+        if word_list != original_word_list:
+            sa.word_list = word_list        
+            sa.made_wl = True
+            return str(sa.word_list)
+        else:
+            return
+    else:
+        return
 
 
 # product list
 @app.callback(Output("forecast_product_list-out", "children"),
                 [Input("forecast_product_list_submit","n_clicks")],
                 [State("forecast_product_list","value")])
-def create_list(n_clicks,myvalue):
-    input_string = str(myvalue)
-    product_list = input_string.split(' ')
-    sa.product_list = product_list
-    return str(sa.product_list)
+def create__product_list(n_clicks,myvalue):
+    original_product_list = sa.product_list
+    if n_clicks > 0:
+        input_string = str(myvalue)
+        product_list = input_string.split(' ')
+        if product_list != original_product_list:
+            sa.product_list = product_list
+            sa.made_pl = True
+            return str(sa.product_list)
+        else:
+            return
+    else:
+        return
 
 # slider values
 @app.callback(Output("slider_values-out", "children"),
@@ -418,45 +396,53 @@ def on_form_change(isGrep_value):
     sa.isGrep = isGrep_value
     return template
 
-@app.callback(Output("new-text", "children"),
-                [Input("refresh-text","n_clicks")],)
-def get_text_output(n_clicks):
-    try:
-        text_data = get_text_data()
-        #df = make_dataframe(text_data)
-    except:
-        text_data = "not on instance!"
-    return text_data
+
+# ----------------------------------------
+### Summarize arguments
+# ----------------------------------------
 
 @app.callback(Output("full_vars-out", "children"),
                 [Input("full_vars","n_clicks")],)   
 def get_full_vars(n_clicks):
-    template = "Word list = {} ...... Product list = {} ...... start_year = {} ...... end_year = {}".format(sa.word_list,
+    template = "Word list = {} ... Product list = {} ... start_year = {} ... end_year = {} ... isGrep = {}".format(sa.word_list,
                                                                     sa.product_list,
                                                                     sa.start_year,
-                                                                    sa.end_year,
+                                                                    sa.end_year,sa.isGrep
 )
 
     return template
 
+# ----------------------------------------
+### Execute and monitor FSW script
+# ----------------------------------------
+
 @app.callback(Output("run_script-out", "children"),
                 [Input("run_script","n_clicks")],)   
 def execute_script(n_clicks):
-    original_file = get_latest_dir_item()
-    check_file = original_file
-    original_text = get_text_data()
-    check_text = original_text
-    words = arg_from_list(sa.word_list)
-    prods = arg_from_list(sa.product_list)
-    sy = sa.start_year
-    ey = sa.end_year
-    cmd_str = f'cd /Forecast_Search_Wizard/RUN_ME ; python NAMELIST_args.py --word_list {words} --product_list {prods} --start_year {sy} --end_year {ey}'
-    os.system(cmd_str)
-    while check_file == original_file:
-        time.sleep(5)
-        check_file = get_latest_dir_item()
-    if check_file != original_file:
-        return "Script Completed! Click link below to download output file."
+    if n_clicks == 0:
+        return "Click to run script!"
+    if sa.made_pl and sa.made_wl:
+        original_file = get_latest_dir_item()
+        check_file = original_file
+        words = arg_from_list(sa.word_list)
+        prods = arg_from_list(sa.product_list)
+        sy = sa.start_year
+        ey = sa.end_year
+        cmd_str = f'cd /Forecast_Search_Wizard/RUN_ME ; python NAMELIST_args.py --word_list {words} --product_list {prods} --start_year {sy} --end_year {ey}'
+        os.system(cmd_str)
+        while check_file == original_file:
+            time.sleep(2)
+            check_file = get_latest_dir_item()
+            if check_file != original_file:
+                return "Script Completed! Click link below to download output file."
+            else:
+                continue
+    else:
+        return "Ensure you've submitted both a word/phrase list and a product list before continuing!"
+
+# ----------------------------------------
+### Pandas stuff
+# ----------------------------------------
 
 
 def make_dataframe(text):
@@ -489,6 +475,15 @@ def make_dataframe(text):
 #    fig = go.Figure(data=go.Scatter(x=x, y=y))
 #    fig.show()
 
+# def get_text_data():
+#     fname = os.listdir(FSW_OUTPUT_DIR)[-1]
+#     if 'NONE' in str(fname):
+#         fname = os.listdir(FSW_OUTPUT_DIR)[-2]
+#     text_file_path = os.path.join(FSW_OUTPUT_DIR,fname)
+#     fin = open(text_file_path, 'r')
+#     text_data = fin.read()
+#     fin.close()
+#     return text_data
 
 if __name__ == '__main__':
     app.run_server()

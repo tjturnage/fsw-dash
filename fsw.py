@@ -253,11 +253,10 @@ app.layout = dbc.Container(
                     className="button is-large is-outlined",
                     children=["Click to download file"]
                     ),
-                html.Div(
-                    id="download-area",
-                    className="block",
-                    children=[]
-                    )
+        html.Div([
+            html.Button("Download Image", id="btn_image"),
+            dcc.Download(id="download-image")
+            ])
                 ]),
             ]
         ),
@@ -267,47 +266,58 @@ app.layout = dbc.Container(
 # ----------------------------------------
 ### Download Setup
 # ----------------------------------------
-def build_download_button(uri):
-    """Generates a download button for the resource"""
-    button = html.Form(
-        action=uri,
-        method="get",
-        children=[
-            html.Button(
-                className="button",
-                type="submit",
-                children=[
-                    "download"
-                ]
-            )
-        ]
-    )
-    return button
 
 @app.callback(
-    Output("download-area", "children"),
-    [
-        Input("enter-button", "n_clicks")
-    ])
-def show_download_button(n_clicks):
-    # turn text area content into file
-    #filename = f"{uuid.uuid1()}.txt"
-    #filename = f"{uuid.uuid1()}.txt"
-    path = sa.fpath
-    print(path)
-    #with open(path, "w") as file:
-    #    file.write(text)
-    uri = path
-    return [build_download_button(uri)]
-
-@app.server.route('/download/<path:path>')
-def serve_static(path):
-    sa.fname = get_latest_dir_item()
-    sa.fpath = os.path.join(os.path.join(FSW_DIR,sa.fname))
-    #root_dir = os.getcwd()
-    return flask.send_from_directory(
-        sa.fpath, path
+    Output("download-image", "data"),
+    Input("btn_image", "n_clicks"),
+    prevent_initial_call=True,
+)
+def func(n_clicks):
+    return dcc.send_file(
+        "./dash_docs/assets/images/gallery/dash-community-components.png"
     )
+
+# def build_download_button(uri):
+#     """Generates a download button for the resource"""
+#     button = html.Form(
+#         action=uri,
+#         method="get",
+#         children=[
+#             html.Button(
+#                 className="button",
+#                 type="submit",
+#                 children=[
+#                     "download"
+#                 ]
+#             )
+#         ]
+#     )
+#     return button
+
+# @app.callback(
+#     Output("download-area", "children"),
+#     [
+#         Input("enter-button", "n_clicks")
+#     ])
+# def show_download_button(n_clicks):
+#     # turn text area content into file
+#     #filename = f"{uuid.uuid1()}.txt"
+#     #filename = f"{uuid.uuid1()}.txt"
+#     path = sa.fpath
+#     print(path)
+#     #with open(path, "w") as file:
+#     #    file.write(text)
+#     uri = path
+#     return [build_download_button(uri)]
+
+# @app.server.route('/download/<path:path>')
+# def serve_static(path):
+#     sa.fname = get_latest_dir_item()
+#     sa.fpath = os.path.join(os.path.join(FSW_DIR,sa.fname))
+#     #root_dir = os.getcwd()
+#     return flask.send_from_directory(
+#         sa.fpath, path
+#     )
 
 def get_latest_dir_item():
     fname = os.listdir(FSW_OUTPUT_DIR)[-1]

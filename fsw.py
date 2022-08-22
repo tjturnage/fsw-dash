@@ -385,7 +385,7 @@ def get_full_vars(n_clicks):
                 [Input("run_script","n_clicks")],)   
 def execute_script(n_clicks):
     if n_clicks == 0:
-        return "Click to run script!"
+        return "After clicking above, you'll be notified here when the script completes ... "
     if sa.made_pl and sa.made_wl:
         original_file = get_latest_dir_item()
         check_file = original_file

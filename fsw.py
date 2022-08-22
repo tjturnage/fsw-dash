@@ -369,10 +369,10 @@ def on_form_change(isGrep_value):
 @app.callback(Output("full_vars-out", "children"),
                 [Input("full_vars","n_clicks")],)   
 def get_full_vars(n_clicks):
-    template = "Word list = {} ... Product list = {} ... start_year = {} ... end_year = {} ... isGrep = {}".format(sa.word_list,
+    template = "Word list = {} ... Product list = {} ... start_year = {} ... end_year = {} ... isAnd = {} ... byForecast = {} ... isGrep = {}".format(sa.word_list,
                                                                     sa.product_list,
                                                                     sa.start_year,
-                                                                    sa.end_year,sa.isGrep
+                                                                    sa.end_year,sa.isAnd,sa.byForecast,sa.isGrep
 )
 
     return template
@@ -393,7 +393,12 @@ def execute_script(n_clicks):
         prods = arg_from_list(sa.product_list)
         sy = sa.start_year
         ey = sa.end_year
-        cmd_str = f'cd /Forecast_Search_Wizard/RUN_ME ; python NAMELIST_args.py --word_list {words} --product_list {prods} --start_year {sy} --end_year {ey}'
+        ia = sa.isAnd
+        bf = sa.byForecast
+        ig = sa.isGrep
+        cmd_str1 = f'cd /Forecast_Search_Wizard/RUN_ME ; python NAMELIST_args.py --word_list {words} '
+        cmd_str2 = f'--product_list {prods} --start_year {sy} --end_year {ey} --isAnd {ia} --byForecast {bf} --isGrep {ig}'
+        cmd_str = cmd_str1 + cmd_str2
         os.system(cmd_str)
         while check_file == original_file:
             time.sleep(2)

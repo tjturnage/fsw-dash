@@ -4,8 +4,6 @@ import dash
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output,State
-import uuid
-import flask
 
 import pandas as pd
 import sys
@@ -13,8 +11,6 @@ import sys
 import time
 import plotly.graph_objs as go
 import numpy as np
-
-#sys.path.append('/data/scripts/resources')
 
 app = dash.Dash(__name__, external_stylesheets= [dbc.themes.DARKLY])#, 'https://codepen.io/chriddyp/pen/bWLwgP.css'])
 app.title = "Forecast Search Wizard"
@@ -129,6 +125,12 @@ class FSW:
         self.made_pl = made_pl
         self.fname = fname
         self.fpath = fpath
+        self.original_file = self.get_latest_dir_item()
+
+    def get_latest_dir_item(self):
+        self.fname = os.listdir(FSW_OUTPUT_DIR)[-1]
+        self.fpath = os.path.join(FSW_OUTPUT_DIR,self.fname)
+        return
 
 sa = FSW()
 
@@ -246,25 +248,25 @@ app.layout = dbc.Container(
         #############
         # View output
         #############
-        html.Div(className="section",
-            children=[
+        dbc.Row([
+            dbc.Col(
                 html.Div([
-                    dbc.Button("Download FSW Output", id="btn_data"),
+                    dbc.Button("Download FSW Output", id="btn_data", n_clicks=0, style={'padding':'1em','width':'100%'}),
                     dcc.Download(id="download-file")
-                    ])
-                ]
-        ),
-        ]
-        ),
+                ])
+            )
+        ])
+    ]),
     ])
 )
+
 
 # ----------------------------------------
 ### Download Setup
 # ----------------------------------------
 
-@app.callback(
-    Output("download-file", "data"),
+@app.callback([
+    Output("download-file", "data")],
     Input("btn_data", "n_clicks"),
     prevent_initial_call=True,
 )
@@ -272,11 +274,6 @@ def func(n_clicks):
     return dcc.send_file(
         sa.fpath
     )
-
-def get_latest_dir_item():
-    fname = os.listdir(FSW_OUTPUT_DIR)[-1]
-    sa.fpath = os.path.join(FSW_OUTPUT_DIR,fname)
-    return fname
 
 # ----------------------------------------
 ### End Download Setup
@@ -387,8 +384,7 @@ def execute_script(n_clicks):
     if n_clicks == 0:
         return "After clicking above, you'll be notified here when the script completes ... "
     if sa.made_pl and sa.made_wl:
-        original_file = get_latest_dir_item()
-        check_file = original_file
+        sa.check_file = sa.get_latest_dir_item()
         words = arg_from_list(sa.word_list)
         prods = arg_from_list(sa.product_list)
         sy = sa.start_year
@@ -400,10 +396,10 @@ def execute_script(n_clicks):
         cmd_str2 = f'--product_list {prods} --start_year {sy} --end_year {ey} --isAnd {ia} --byForecast {bf} --isGrep {ig}'
         cmd_str = cmd_str1 + cmd_str2
         os.system(cmd_str)
-        while check_file == original_file:
+        while sa.check_file == sa.original_file:
             time.sleep(2)
-            check_file = get_latest_dir_item()
-            if check_file != original_file:
+            sa.check_file = sa.get_latest_dir_item()
+            if sa.check_file != sa.original_file:
                 return "Script Completed! Click link below to download output file."
             else:
                 continue

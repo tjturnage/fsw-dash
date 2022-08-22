@@ -125,7 +125,7 @@ class FSW:
         self.made_pl = made_pl
         self.fname = fname
         self.fpath = fpath
-        self.original_file = self.get_latest_dir_item()
+        self.original_fname = self.get_latest_dir_item()
 
     def get_latest_dir_item(self):
         self.fname = os.listdir(FSW_OUTPUT_DIR)[-1]
@@ -251,7 +251,7 @@ app.layout = dbc.Container(
         dbc.Row([
             dbc.Col(
                 html.Div([
-                    dbc.Button("Download FSW Output", id="btn_data", n_clicks=0, style={'padding':'1em','width':'100%'}),
+                    dbc.Button("Download FSW Output", color="success", id="btn_data", n_clicks=0, style={'padding':'1em','width':'100%'}),
                     dcc.Download(id="download-file")
                 ])
             )
@@ -396,10 +396,10 @@ def execute_script(n_clicks):
         cmd_str2 = f'--product_list {prods} --start_year {sy} --end_year {ey} --isAnd {ia} --byForecast {bf} --isGrep {ig}'
         cmd_str = cmd_str1 + cmd_str2
         os.system(cmd_str)
-        while sa.check_file == sa.original_file:
+        while sa.check_file == sa.original_fname:
             time.sleep(2)
             sa.check_file = sa.get_latest_dir_item()
-            if sa.check_file != sa.original_file:
+            if sa.check_file != sa.original_fname:
                 return "Script Completed! Click link below to download output file."
             else:
                 continue
@@ -409,7 +409,6 @@ def execute_script(n_clicks):
 # ----------------------------------------
 ### Pandas stuff
 # ----------------------------------------
-
 
 def make_dataframe(text):
     dts = []

@@ -248,17 +248,13 @@ app.layout = dbc.Container(
         #############
         html.Div(className="section",
             children=[
-                dbc.Button(
-                    id="enter-button",
-                    className="button is-large is-outlined",
-                    children=["Click to download file"]
-                    ),
-        html.Div([
-            dbc.Button("Download FSW Output", id="btn_data"),
-            dcc.Download(id="download-file")
-            ])
-                ]),
-            ]
+                html.Div([
+                    dbc.Button("Download FSW Output", id="btn_data"),
+                    dcc.Download(id="download-file")
+                    ])
+                ]
+        ),
+        ]
         ),
     ])
 )

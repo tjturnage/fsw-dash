@@ -271,8 +271,11 @@ app.layout = dbc.Container(
     prevent_initial_call=True,
 )
 def func(n_clicks):
+    new_fp = os.path.join(FSW_OUTPUT_DIR,sa.fname)
+    print(f"new file path {new_fp}")
+    #print(str(sa.fpath))
     return dcc.send_file(
-        sa.fpath
+        new_fp
     )
 
 # ----------------------------------------
@@ -399,6 +402,8 @@ def execute_script(n_clicks):
         while sa.check_file == sa.original_fname:
             time.sleep(2)
             sa.check_file = sa.get_latest_dir_item()
+            print(f"original filename file = {sa.original_fname}")
+            print(f"check file = {sa.check_file}")
             if sa.check_file != sa.original_fname:
                 return "Script Completed! Click link below to download output file."
             else:

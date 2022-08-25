@@ -113,7 +113,7 @@ view_output = [
 # Set up class
 # ----------------------------------------
 class FSW:
-    def __init__(self,word_list=None, product_list=None,start_year=2010,end_year=this_year,isAnd=False,byForecast=True,isGrep=True,made_wl=False,made_pl=False,fname=None,fpath=None):
+    def __init__(self,word_list=None, product_list=None,start_year=2010,end_year=this_year,isAnd=False,byForecast=True,isGrep=True,made_wl=False,made_pl=False,fname=None,fpath=None, original_fpath=None):
         self.word_list = word_list
         self.product_list = product_list
         self.start_year = start_year
@@ -125,7 +125,7 @@ class FSW:
         self.made_pl = made_pl
         self.fname = fname
         self.fpath = fpath
-        #self.original_fname = self.get_latest_dir_item()
+        self.original_fpath = original_fpath
 
 def get_latest_dir_item():
     fname = os.listdir(FSW_OUTPUT_DIR)[-1]
@@ -133,7 +133,8 @@ def get_latest_dir_item():
     return fpath
 
 sa = FSW()
-original_fpath = get_latest_dir_item()
+sa.original_fpath = get_latest_dir_item()
+sa.fpath = get_latest_dir_item()
 # ----------------------------------------
 # Webpage layout
 # ----------------------------------------
@@ -397,14 +398,14 @@ def execute_script(n_clicks):
         cmd_str2 = f'--product_list {prods} --start_year {sy} --end_year {ey} --isAnd {ia} --byForecast {bf} --isGrep {ig}'
         cmd_str = cmd_str1 + cmd_str2
         os.system(cmd_str)
-        while check_file == original_fpath:
+        while sa.fpath == sa.original_fpath:
             time.sleep(2)
-            check_fpath = get_latest_dir_item()
-            print(f"original filepath = {original_fpath}")
-            print(f"check file = {check_file}")
-            if check_fpath != original_fpath:
-                sa.fpath = check_fpath
-                print(f"new file! ... {sa.fpath}")
+            sa.fpath = get_latest_dir_item()
+            print(f"Sigh... original filepath = {sa.original_fpath}")
+            print(f"Sigh... check fpath       = {sa.fpath}")
+            if sa.fpath != sa.original_fpath:
+                print(f"Yay! original filepath = {sa.original_fpath}")
+                print(f"Yay! check fpath       = {sa.fpath}")
                 return "Script Completed! Click link below to download output file."
             else:
                 continue

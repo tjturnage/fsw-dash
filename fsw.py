@@ -266,17 +266,24 @@ app.layout = dbc.Container(
 ### Download Setup
 # ----------------------------------------
 
+# @app.callback([
+#     Output("download-file", "data")],
+#     Input("btn_data", "n_clicks"),
+#     prevent_initial_call=True,
+# )
+# def func(n_clicks):
+#     #new_fp = os.path.join(FSW_OUTPUT_DIR,sa.fname)
+#     print(f"new file path {sa.fpath}")
+#     #print(str(sa.fpath))
+#     return dcc.send_file(str(sa.fpath))
+
 @app.callback([
     Output("download-file", "data")],
     Input("btn_data", "n_clicks"),
     prevent_initial_call=True,
 )
-def func(n_clicks):
-    #new_fp = os.path.join(FSW_OUTPUT_DIR,sa.fname)
-    print(f"new file path {sa.fpath}")
-    #print(str(sa.fpath))
-    return dcc.send_file(str(sa.fpath))
-
+def func(n_clicks,text):
+    return dict(content=text, filename=sa.fpath)
 # ----------------------------------------
 ### End Download Setup
 # ----------------------------------------

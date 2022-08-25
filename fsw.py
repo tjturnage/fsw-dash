@@ -274,9 +274,7 @@ def func(n_clicks):
     #new_fp = os.path.join(FSW_OUTPUT_DIR,sa.fname)
     print(f"new file path {sa.fpath}")
     #print(str(sa.fpath))
-    return dcc.send_file(
-        sa.fpath
-    )
+    return dcc.send_file(str(sa.fpath))
 
 # ----------------------------------------
 ### End Download Setup
@@ -406,6 +404,7 @@ def execute_script(n_clicks):
             print(f"check file = {check_file}")
             if check_fpath != original_fpath:
                 sa.fpath = check_fpath
+                print(f"new file! ... {sa.fpath}")
                 return "Script Completed! Click link below to download output file."
             else:
                 continue

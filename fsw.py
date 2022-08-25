@@ -125,15 +125,15 @@ class FSW:
         self.made_pl = made_pl
         self.fname = fname
         self.fpath = fpath
-        self.original_fname = self.get_latest_dir_item()
+        #self.original_fname = self.get_latest_dir_item()
 
-    def get_latest_dir_item(self):
-        self.fname = os.listdir(FSW_OUTPUT_DIR)[-1]
-        self.fpath = os.path.join(FSW_OUTPUT_DIR,self.fname)
-        return
+def get_latest_dir_item():
+    fname = os.listdir(FSW_OUTPUT_DIR)[-1]
+    fpath = os.path.join(FSW_OUTPUT_DIR,fname)
+    return fpath
 
 sa = FSW()
-
+original_fpath = get_latest_dir_item()
 # ----------------------------------------
 # Webpage layout
 # ----------------------------------------
@@ -271,11 +271,11 @@ app.layout = dbc.Container(
     prevent_initial_call=True,
 )
 def func(n_clicks):
-    new_fp = os.path.join(FSW_OUTPUT_DIR,sa.fname)
-    print(f"new file path {new_fp}")
+    #new_fp = os.path.join(FSW_OUTPUT_DIR,sa.fname)
+    print(f"new file path {sa.fpath}")
     #print(str(sa.fpath))
     return dcc.send_file(
-        new_fp
+        sa.fpath
     )
 
 # ----------------------------------------
@@ -387,7 +387,7 @@ def execute_script(n_clicks):
     if n_clicks == 0:
         return "After clicking above, you'll be notified here when the script completes ... "
     if sa.made_pl and sa.made_wl:
-        sa.check_file = sa.get_latest_dir_item()
+        check_file = get_latest_dir_item()
         words = arg_from_list(sa.word_list)
         prods = arg_from_list(sa.product_list)
         sy = sa.start_year
@@ -399,12 +399,13 @@ def execute_script(n_clicks):
         cmd_str2 = f'--product_list {prods} --start_year {sy} --end_year {ey} --isAnd {ia} --byForecast {bf} --isGrep {ig}'
         cmd_str = cmd_str1 + cmd_str2
         os.system(cmd_str)
-        while sa.check_file == sa.original_fname:
+        while check_file == original_fpath:
             time.sleep(2)
-            sa.check_file = sa.get_latest_dir_item()
-            print(f"original filename file = {sa.original_fname}")
-            print(f"check file = {sa.check_file}")
-            if sa.check_file != sa.original_fname:
+            check_fpath = get_latest_dir_item()
+            print(f"original filepath = {original_fpath}")
+            print(f"check file = {check_file}")
+            if check_fpath != original_fpath:
+                sa.fpath = check_fpath
                 return "Script Completed! Click link below to download output file."
             else:
                 continue

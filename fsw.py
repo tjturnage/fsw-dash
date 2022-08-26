@@ -117,7 +117,7 @@ view_output = [
 # Set up class
 # ----------------------------------------
 class FSW:
-    def __init__(self,word_list=None, product_list=None,start_year=2010,end_year=this_year,isAnd=False,byForecast=True,isGrep=True,made_wl=False,made_pl=False,fname=None,fpath=None, original_fpath=None):
+    def __init__(self,word_list=None, product_list=None,start_year=2010,end_year=this_year,isAnd=False,byForecast=True,isGrep=True):
         self.word_list = word_list
         self.product_list = product_list
         self.start_year = start_year
@@ -125,11 +125,12 @@ class FSW:
         self.isAnd = isAnd
         self.byForecast = byForecast
         self.isGrep = isGrep
-        self.made_wl = made_wl
-        self.made_pl = made_pl
-        self.fname = fname
-        self.fpath = fpath
-        self.original_fpath = original_fpath
+        self.made_word_list = False
+        self.made_product_list = False
+        self.fname = None
+        self.fpath = None
+        self.original_fpath = None
+        self.fpath_contents = None
 
 def new_file_available():
     fname = os.listdir(FSW_OUTPUT_DIR)[-1]
@@ -282,11 +283,7 @@ app.layout = dbc.Container(
 #     Input("btn_data", "n_clicks"),
 #     prevent_initial_call=True,
 # )
-# def func(n_clicks):
-#     #new_fp = os.path.join(FSW_OUTPUT_DIR,sa.fname)
-#     print(f"new file path {sa.fpath}")
-#     #print(str(sa.fpath))
-#     return dcc.send_file(str(sa.fpath))
+
 
 @app.callback([
     Output("download-file", "data")],
@@ -294,12 +291,10 @@ app.layout = dbc.Container(
     prevent_initial_call=True,
 )
 def func(n_clicks):
-    if n_clicks > 0:
-        #return dict(content=text, filename=sa.fpath)
-        #return dcc.send_file(f"{sa.fpath}")
-        location = "{}/{}".format(FSW_OUTPUT_DIR,urlquote(sa.fpath))
-        print("location = {}.format(location)")
-        return location
+     #new_fp = os.path.join(FSW_OUTPUT_DIR,sa.fname)
+     print(f"new file path {sa.fpath}")
+     #print(str(sa.fpath))
+     return dict(content=sa.fpath_contents, filename="FSW_data.txt")
 
 # ----------------------------------------
 ### End Download Setup
@@ -324,7 +319,7 @@ def create_word_list(n_clicks,myvalue):
         word_list = fixed_str.split(',')
         if word_list != original_word_list:
             sa.word_list = word_list        
-            sa.made_wl = True
+            sa.made_word_list = True
             return str(sa.word_list)
         else:
             return
@@ -343,7 +338,7 @@ def create__product_list(n_clicks,myvalue):
         product_list = input_string.split(' ')
         if product_list != original_product_list:
             sa.product_list = product_list
-            sa.made_pl = True
+            sa.made_product_list = True
             return str(sa.product_list)
         else:
             return
@@ -404,12 +399,17 @@ def get_full_vars(n_clicks):
 ### Execute and monitor FSW script
 # ----------------------------------------
 
+def read_file(file):
+    with open(file,'r') as fin:
+        text = read.fin()
+    return text
+
 @app.callback(Output("run_script-out", "children"),
                 [Input("run_script","n_clicks")],)   
 def execute_script(n_clicks):
     if n_clicks == 0:
         return "After clicking above, you'll be notified here when the script completes ... "
-    if sa.made_pl and sa.made_wl:
+    if sa.made_product_list and sa.made_word_list:
         new_file = new_file_available()
         words = arg_from_list(sa.word_list)
         prods = arg_from_list(sa.product_list)
@@ -426,6 +426,7 @@ def execute_script(n_clicks):
             time.sleep(5)
         else:
             sa.new_file = new_file_available()
+            sa.fpath_contents = read_file(sa.new_file)
             return "Script Completed! Click link below to download output file."
     else:
         return "Ensure you've submitted both a word/phrase list and a product list before continuing!"

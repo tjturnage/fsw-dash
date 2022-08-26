@@ -129,8 +129,8 @@ class FSW:
 
 def get_latest_dir_item():
     fname = os.listdir(FSW_OUTPUT_DIR)[-1]
-    fpath = os.path.join(FSW_OUTPUT_DIR,fname)
-    return fpath
+    sa.fpath = os.path.join(FSW_OUTPUT_DIR,fname)
+    return
 
 sa = FSW()
 sa.original_fpath = get_latest_dir_item()
@@ -395,7 +395,7 @@ def execute_script(n_clicks):
     if n_clicks == 0:
         return "After clicking above, you'll be notified here when the script completes ... "
     if sa.made_pl and sa.made_wl:
-        check_file = get_latest_dir_item()
+        get_latest_dir_item()
         words = arg_from_list(sa.word_list)
         prods = arg_from_list(sa.product_list)
         sy = sa.start_year
@@ -409,7 +409,7 @@ def execute_script(n_clicks):
         os.system(cmd_str)
         while sa.fpath == sa.original_fpath:
             time.sleep(5)
-            sa.fpath = get_latest_dir_item()
+            get_latest_dir_item()
             print(f"Sigh... original filepath = {sa.original_fpath}")
             print(f"Sigh... check fpath       = {sa.fpath}")
             if sa.fpath != sa.original_fpath:

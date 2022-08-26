@@ -1,11 +1,14 @@
-from hashlib import new
+
 import os
 from datetime import datetime
 import dash
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output,State
+import base64
+from urllib.parse import quote as urlquote
 
+from flask import Flask, send_from_directory
 import pandas as pd
 import sys
 
@@ -269,7 +272,7 @@ app.layout = dbc.Container(
     ])
 )
 
-
+#mSNu87%H2%2
 # ----------------------------------------
 ### Download Setup
 # ----------------------------------------
@@ -293,8 +296,10 @@ app.layout = dbc.Container(
 def func(n_clicks):
     if n_clicks > 0:
         #return dict(content=text, filename=sa.fpath)
-        return dcc.send_file(f"{sa.fpath}")
-
+        #return dcc.send_file(f"{sa.fpath}")
+        location = "{}/{}".format(FSW_OUTPUT_DIR,urlquote(sa.fpath))
+        print("location = {}.format(location)")
+        return location
 
 # ----------------------------------------
 ### End Download Setup

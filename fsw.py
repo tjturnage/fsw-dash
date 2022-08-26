@@ -1,3 +1,4 @@
+from hashlib import new
 import os
 from datetime import datetime
 import dash
@@ -127,14 +128,21 @@ class FSW:
         self.fpath = fpath
         self.original_fpath = original_fpath
 
-def get_latest_dir_item():
+def new_file_available():
     fname = os.listdir(FSW_OUTPUT_DIR)[-1]
     this_fpath = os.path.join(FSW_OUTPUT_DIR,fname)
-    return this_fpath
+    print(this_fpath)
+    if this_fpath != sa.original_fpath:
+        print(f"Yay! {this_fpath}")
+        sa.fpath = this_fpath
+        return True
+    else:
+        print("Not yet")
+        return False
 
 sa = FSW()
-sa.original_fpath = get_latest_dir_item()
-sa.fpath = get_latest_dir_item()
+#sa.original_fpath = get_latest_dir_item()
+#sa.fpath = get_latest_dir_item()
 # ----------------------------------------
 # Webpage layout
 # ----------------------------------------
@@ -395,7 +403,7 @@ def execute_script(n_clicks):
     if n_clicks == 0:
         return "After clicking above, you'll be notified here when the script completes ... "
     if sa.made_pl and sa.made_wl:
-        sa.fpath = get_latest_dir_item()
+        new_file = new_file_available()
         words = arg_from_list(sa.word_list)
         prods = arg_from_list(sa.product_list)
         sy = sa.start_year
@@ -407,17 +415,11 @@ def execute_script(n_clicks):
         cmd_str2 = f'--product_list {prods} --start_year {sy} --end_year {ey} --isAnd {ia} --byForecast {bf} --isGrep {ig}'
         cmd_str = cmd_str1 + cmd_str2
         os.system(cmd_str)
-        while sa.fpath == sa.original_fpath:
+        while new_file is False:
             time.sleep(5)
-            sa.fpath = get_latest_dir_item()
-            print(f"Sigh... original filepath = {sa.original_fpath}")
-            print(f"Sigh... check fpath       = {sa.fpath}")
-            if sa.fpath != sa.original_fpath:
-                print(f"Yay! original filepath = {sa.original_fpath}")
-                print(f"Yay! check fpath       = {sa.fpath}")
-                return "Script Completed! Click link below to download output file."
-            else:
-                continue
+            new_file = new_file_available()
+        else:
+            return "Script Completed! Click link below to download output file."
     else:
         return "Ensure you've submitted both a word/phrase list and a product list before continuing!"
 

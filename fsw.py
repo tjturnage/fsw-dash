@@ -252,7 +252,7 @@ app.layout = dbc.Container(
         dbc.Row([
             dbc.Col(
                 html.Div([
-                    dbc.Button("Download FSW Output", color="success", id="btn_data", n_clicks=0, style={'padding':'1em','width':'100%'}),
+                    dbc.Button("Download FSW Output", color="success", id="download_btn", n_clicks=0, style={'padding':'1em','width':'100%'}),
                     dcc.Download(id="download-file")
                 ])
             )
@@ -279,11 +279,13 @@ app.layout = dbc.Container(
 
 @app.callback([
     Output("download-file", "data")],
-    Input("btn_data", "n_clicks"),
+    Input("download_btn", "n_clicks"),
     prevent_initial_call=True,
 )
-def func(n_clicks,text):
-    return dict(content=text, filename=sa.fpath)
+def func(n_clicks):
+    if n_clicks > 0 and sa.fpath != sa.original_fpath:
+        #return dict(content=text, filename=sa.fpath)
+        return dcc.send_file(str(sa.fpath))
 # ----------------------------------------
 ### End Download Setup
 # ----------------------------------------
@@ -406,7 +408,7 @@ def execute_script(n_clicks):
         cmd_str = cmd_str1 + cmd_str2
         os.system(cmd_str)
         while sa.fpath == sa.original_fpath:
-            time.sleep(2)
+            time.sleep(5)
             sa.fpath = get_latest_dir_item()
             print(f"Sigh... original filepath = {sa.original_fpath}")
             print(f"Sigh... check fpath       = {sa.fpath}")

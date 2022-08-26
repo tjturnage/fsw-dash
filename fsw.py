@@ -293,7 +293,9 @@ app.layout = dbc.Container(
 def func(n_clicks):
     if n_clicks > 0:
         #return dict(content=text, filename=sa.fpath)
-        return dcc.send_file(str(sa.fpath))
+        return dcc.send_file(f"{sa.fpath}")
+
+
 # ----------------------------------------
 ### End Download Setup
 # ----------------------------------------
@@ -417,8 +419,8 @@ def execute_script(n_clicks):
         os.system(cmd_str)
         while new_file is False:
             time.sleep(5)
-            new_file = new_file_available()
         else:
+            sa.new_file = new_file_available()
             return "Script Completed! Click link below to download output file."
     else:
         return "Ensure you've submitted both a word/phrase list and a product list before continuing!"

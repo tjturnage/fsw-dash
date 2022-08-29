@@ -133,8 +133,8 @@ class FSW:
         self.fpath_contents = None
 
 def new_file_available():
-    fname = os.listdir(FSW_OUTPUT_DIR)[-1]
-    this_fpath = os.path.join(FSW_OUTPUT_DIR,fname)
+    sa.fname = os.listdir(FSW_OUTPUT_DIR)[-1]
+    this_fpath = os.path.join(FSW_OUTPUT_DIR,sa.fname)
     print(this_fpath)
     if this_fpath != sa.original_fpath:
         print(f"Yay! {this_fpath}")
@@ -264,11 +264,16 @@ app.layout = dbc.Container(
         dbc.Row([
             dbc.Col(
                 html.Div([
-                    dbc.Button("Download FSW Output", color="success", id="download_btn", n_clicks=0, style={'padding':'1em','width':'100%'}),
-                    dcc.Download(id="download-file")
+                    html.Button("Download FSW Output", id="download-btn"),
+                    html.Div(id="download-file"),
+                    #dcc.Download(id="download-file")
                 ])
             )
-        ])
+        ]),
+        html.Div([
+    html.Button("Download Image", id="btn_test"),
+    dcc.Download(id="download-test")
+     ])
     ]),
     ])
 )
@@ -284,17 +289,37 @@ app.layout = dbc.Container(
 #     prevent_initial_call=True,
 # )
 
+app.layout = html.Div([
+    html.Button("Download Image", id="btn_image"),
+    dcc.Download(id="download-file")
+])
 
-@app.callback([
-    Output("download-file", "data")],
-    Input("download_btn", "n_clicks"),
+
+@app.callback(
+    Output("download-image", "data"),
+    Input("btn_image", "n_clicks"),
     prevent_initial_call=True,
 )
 def func(n_clicks):
-     #new_fp = os.path.join(FSW_OUTPUT_DIR,sa.fname)
-     print(f"new file path {sa.fpath}")
-     #print(str(sa.fpath))
-     return dict(content=sa.fpath_contents, filename="FSW_data.txt")
+    return dcc.send_file(
+        "/Forecast_Search_Wizard/FSW_OUTPUT/testing.txt"
+    )
+
+@app.callback([
+    Output("download-file", "children")],
+    Input("download-btn", "n_clicks"),
+    prevent_initial_call=True,
+)
+def func(n_clicks):
+    #new_fp = os.path.join(FSW_OUTPUT_DIR,sa.fname)
+    print(f"new file path {sa.fpath}")
+    #print(str(sa.fpath))
+    #cmd = "cat {}".format(sa.fpath)
+    #os.system(cmd)
+    #return # dcc.send_file(sa.fpath)
+    """Create a Plotly Dash 'A' element that downloads a file from the app."""
+    return html.A(sa.fname, href=sa.fpath)
+     
 
 # ----------------------------------------
 ### End Download Setup
@@ -400,8 +425,10 @@ def get_full_vars(n_clicks):
 # ----------------------------------------
 
 def read_file(file):
-    with open(file,'r') as fin:
-        text = read.fin()
+    fin = open(file,'r')
+    text = fin.read()
+    fin.close()
+    print(text)
     return text
 
 @app.callback(Output("run_script-out", "children"),
@@ -426,7 +453,6 @@ def execute_script(n_clicks):
             time.sleep(5)
         else:
             sa.new_file = new_file_available()
-            sa.fpath_contents = read_file(sa.new_file)
             return "Script Completed! Click link below to download output file."
     else:
         return "Ensure you've submitted both a word/phrase list and a product list before continuing!"

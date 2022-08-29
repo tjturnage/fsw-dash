@@ -264,16 +264,11 @@ app.layout = dbc.Container(
         dbc.Row([
             dbc.Col(
                 html.Div([
-                    html.Button("Download FSW Output", id="download-btn"),
-                    html.Div(id="download-file"),
-                    #dcc.Download(id="download-file")
+                    html.Button("Download FSW Output", id="test-download-btn"),
+                    dcc.Download(id="download-test")
                 ])
             )
         ]),
-        html.Div([
-    html.Button("Download Image", id="btn_test"),
-    dcc.Download(id="download-test")
-     ])
     ]),
     ])
 )
@@ -283,42 +278,30 @@ app.layout = dbc.Container(
 ### Download Setup
 # ----------------------------------------
 
-# @app.callback([
-#     Output("download-file", "data")],
-#     Input("btn_data", "n_clicks"),
-#     prevent_initial_call=True,
-# )
-
-app.layout = html.Div([
-    html.Button("Download Image", id="btn_image"),
-    dcc.Download(id="download-file")
-])
-
-
 @app.callback(
-    Output("download-image", "data"),
-    Input("btn_image", "n_clicks"),
+    Output("download-test", "data"),
+    Input("test-download-btn", "n_clicks"),
     prevent_initial_call=True,
 )
-def func(n_clicks):
+def func_test(n_clicks):
     return dcc.send_file(
-        "/Forecast_Search_Wizard/FSW_OUTPUT/testing.txt"
+        "/Forecast_Search_Wizard/FSW_OUTPUT/{}".format(sa.fname)
     )
 
-@app.callback([
-    Output("download-file", "children")],
-    Input("download-btn", "n_clicks"),
-    prevent_initial_call=True,
-)
-def func(n_clicks):
-    #new_fp = os.path.join(FSW_OUTPUT_DIR,sa.fname)
-    print(f"new file path {sa.fpath}")
-    #print(str(sa.fpath))
-    #cmd = "cat {}".format(sa.fpath)
-    #os.system(cmd)
-    #return # dcc.send_file(sa.fpath)
-    """Create a Plotly Dash 'A' element that downloads a file from the app."""
-    return html.A(sa.fname, href=sa.fpath)
+#@app.callback([
+#    Output("download-file", "children")],
+#    Input("download-btn", "n_clicks"),
+#    prevent_initial_call=True,
+#)
+#def func(n_clicks):
+#    #new_fp = os.path.join(FSW_OUTPUT_DIR,sa.fname)
+#    print(f"new file path {sa.fpath}")
+#    #print(str(sa.fpath))
+#    #cmd = "cat {}".format(sa.fpath)
+#    #os.system(cmd)
+#    #return # dcc.send_file(sa.fpath)
+#    """Create a Plotly Dash 'A' element that downloads a file from the app."""
+#    return html.A(sa.fname, href=sa.fpath)
      
 
 # ----------------------------------------
@@ -502,4 +485,4 @@ def make_dataframe(text):
 #     return text_data
 
 if __name__ == '__main__':
-    app.run_server()
+    app.run_server(debug="True")

@@ -264,7 +264,7 @@ app.layout = dbc.Container(
         dbc.Row([
             dbc.Col(
                 html.Div([
-                    html.Button("Download FSW Output", id="test-download-btn"),
+                    dbc.Button("Download FSW Output", id="test-download-btn"),
                     dcc.Download(id="download-test")
                 ])
             )
@@ -287,22 +287,6 @@ def func_test(n_clicks):
     return dcc.send_file(
         "/Forecast_Search_Wizard/FSW_OUTPUT/{}".format(sa.fname)
     )
-
-#@app.callback([
-#    Output("download-file", "children")],
-#    Input("download-btn", "n_clicks"),
-#    prevent_initial_call=True,
-#)
-#def func(n_clicks):
-#    #new_fp = os.path.join(FSW_OUTPUT_DIR,sa.fname)
-#    print(f"new file path {sa.fpath}")
-#    #print(str(sa.fpath))
-#    #cmd = "cat {}".format(sa.fpath)
-#    #os.system(cmd)
-#    #return # dcc.send_file(sa.fpath)
-#    """Create a Plotly Dash 'A' element that downloads a file from the app."""
-#    return html.A(sa.fname, href=sa.fpath)
-     
 
 # ----------------------------------------
 ### End Download Setup

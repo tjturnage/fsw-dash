@@ -269,11 +269,11 @@ app.layout = dbc.Container(
                 ])
             )
         ]),
-        dbc.Row([
-            dbc.Col(
-                html.Div([html.Pre(html.ObjectEl(data="/Forecast_Search_Wizard/FSW_OUTPUT/{}".format(sa.fname)))],style={'padding':'1em','width':'100%'})
-            )
-        ]),
+#        dbc.Row([
+#            dbc.Col(
+#                html.Div([html.Pre(html.ObjectEl(data="/Forecast_Search_Wizard/FSW_OUTPUT/{}".format(sa.fname)))],style={'padding':'1em','width':'100%'})
+#            )
+#        ]),
     ]),
     ])
 )

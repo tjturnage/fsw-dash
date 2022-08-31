@@ -269,6 +269,16 @@ app.layout = dbc.Container(
                 ])
             )
         ]),
+        dbc.Row([
+            dbc.Col(
+                html.Div(id="show-download-btn")
+            )
+        ]),
+        dbc.Row([
+            dbc.Col(
+                html.Div(id="show-text-content")
+            )
+        ]),
 #        dbc.Row([
 #            dbc.Col(
 #                html.Div([html.Pre(html.ObjectEl(data="/Forecast_Search_Wizard/FSW_OUTPUT/{}".format(sa.fname)))],style={'padding':'1em','width':'100%'})
@@ -403,6 +413,17 @@ def read_file(file):
     print(text)
     return text
 
+@app.callback(Output("show-download-btn", "children"),
+                [Input("n_clicks")],)
+def show_download_button():
+    return(dbc.Button("Show-download button", id="ignore", color="success", style={'padding':'1em','width':'100%'}),
+    dcc.Download(id="ignore"))
+
+@app.callback(Output("show-text-content", "children"),
+                [Input("n_clicks")],)
+def show_text_content():
+    return([html.Pre(html.ObjectEl(data="/Forecast_Search_Wizard/FSW_OUTPUT/{}".format(sa.fname)))])
+
 @app.callback(Output("run_script-out", "children"),
                 [Input("run_script","n_clicks")],)   
 def execute_script(n_clicks):
@@ -425,6 +446,8 @@ def execute_script(n_clicks):
             time.sleep(5)
         else:
             sa.new_file = new_file_available()
+            show_download_button();
+            show_text_content();
             return "Script Completed! Click link below to download output file."
     else:
         return "Ensure you've submitted both a word/phrase list and a product list before continuing!"

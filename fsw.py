@@ -264,17 +264,16 @@ app.layout = dbc.Container(
         dbc.Row([
             dbc.Col(
                 html.Div([
-                    dbc.Button("Download FSW Output", id="test-download-btn", style={'padding':'1em','width':'100%'}),
+                    dbc.Button("Download FSW Output", id="test-download-btn", color="success", style={'padding':'1em','width':'100%'}),
                     dcc.Download(id="download-test")
                 ])
             )
         ]),
         dbc.Row([
             dbc.Col(
-                html.Div([html.Pre(html.ObjectEl( data="/Forecast_Search_Wizard/FSW_OUTPUT/{}".format(sa.fname)))])
+                html.Div([html.Pre(html.ObjectEl(data="/Forecast_Search_Wizard/FSW_OUTPUT/{}".format(sa.fname)))],style={'padding':'1em','width':'100%'})
             )
         ]),
-                
     ]),
     ])
 )

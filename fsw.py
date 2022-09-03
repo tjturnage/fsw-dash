@@ -262,7 +262,7 @@ app.layout = dbc.Container(
         dbc.Row([
             dbc.Col(
                 html.Div([
-                    dbc.Button("Download FSW Output", id="download-btn", color="success", style={'padding':'1em','width':'100%'}),
+                    dbc.Button("Download FSW Output", id="download-btn", color="success", style={'padding':'2em','width':'100%'}),
                     dcc.Download(id="download")
                 ])
             )
@@ -270,12 +270,17 @@ app.layout = dbc.Container(
         dbc.Row([
             dbc.Col(
                 html.Div([
-                    dbc.Button("Show Text Data", id="display-text-btn", color="success", style={'padding':'1em','width':'100%'}),
-                    html.Div(id="show-text-content")
+                    dbc.Button("Show Text Data", id="display-text-btn", color="success", style={'padding':'2em','width':'100%'}),
                 ])
             )
         ]),        
-
+        dbc.Row([
+            dbc.Col(
+                html.Div([
+                    html.Div(id="show-text-content")
+                ])
+            )
+        ]),  
     ]),
     ])
 )
@@ -452,11 +457,11 @@ def execute_script(n_clicks):
 #        Show Text output window
 # ----------------------------------------
 
-#@app.callback(Output("show-text-content", "children"),
-#                [Input("display-text-btn","n_clicks")],)
-#def show_file_content():
-#    return([html.Pre(html.ObjectEl(data="/Forecast_Search_Wizard/FSW_OUTPUT/{}".format(sa.fname)))])
-
+@app.callback(Output("show-text-content", "children"),
+                [Input("display-text-btn","n_clicks")],)
+def show_file_content():
+    #return([html.Pre(html.ObjectEl(data="/Forecast_Search_Wizard/FSW_OUTPUT/{}".format(sa.fname)))])
+    return("hello!")
 # ----------------------------------------
 ### Pandas stuff
 # ----------------------------------------

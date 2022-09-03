@@ -1,4 +1,3 @@
-
 import os
 from datetime import datetime
 import dash
@@ -66,12 +65,6 @@ def make_dataframe(text_data):
     return df_full
 
 # ----------------------------------------
-#        Define Page Layout
-# ----------------------------------------
-
-
-
-# ----------------------------------------
 #        Set up class then instantiate
 # ----------------------------------------
 class FSW:
@@ -129,29 +122,24 @@ top_content = [
 
 step_one = [
             dbc.CardBody([html.H5("Enter Words or Phrases you want to search for, separating each by a comma. Then click button to submit.", 
-            className="card-text"),
-            ])]
+            className="card-text"),])]
 
 step_two = [
             dbc.CardBody([html.H5("Enter Products in upper case and separated by spaces. Click to create product list.",
-            className="card-text"),
-            ])]
+            className="card-text"),])]
 
 step_three = [
-            dbc.CardBody([html.H5("Choose Range of Years to Search", className="card-text"),
-            ])]
+            dbc.CardBody([html.H5("Choose Range of Years to Search", className="card-text"),])]
 
 step_four = [
-            dbc.CardBody([html.H5("Provide Details About How to Search", className="card-text"),
-            ])]
+            dbc.CardBody([html.H5("Provide Details About How to Search", className="card-text"),])]
 
 view_output = [
             dbc.CardBody([html.H5("Output", className="card-title", style=bold),
                 html.P(
                     "Forecast Search Wizard Results",
                     className="card-text",
-                ),
-            ])]
+                ),])]
 
 # ----------------------------------------
 #        Build Webpage layout
@@ -456,18 +444,18 @@ def execute_script(n_clicks):
 
 #@app.callback(Output("download-btn-section",),
 #                [Input("script-status", "n_clicks")],)
-def show_download_button():
-    return(dbc.Button("Show-download button", id="ignore", color="success", style={'padding':'1em','width':'100%'}),
-    dcc.Download(id="ignore"))
+#def show_download_button():
+#    return(dbc.Button("Show-download button", id="ignore", color="success", style={'padding':'1em','width':'100%'}),
+#    dcc.Download(id="ignore"))
 
 # ----------------------------------------
 #        Show Text output window
 # ----------------------------------------
 
-@app.callback(Output("show-text-content", "children"),
-                [Input("display-text-btn","n_clicks")],)
-def show_file_content():
-    return([html.Pre(html.ObjectEl(data="/Forecast_Search_Wizard/FSW_OUTPUT/{}".format(sa.fname)))])
+#@app.callback(Output("show-text-content", "children"),
+#                [Input("display-text-btn","n_clicks")],)
+#def show_file_content():
+#    return([html.Pre(html.ObjectEl(data="/Forecast_Search_Wizard/FSW_OUTPUT/{}".format(sa.fname)))])
 
 # ----------------------------------------
 ### Pandas stuff

@@ -279,22 +279,15 @@ app.layout = dbc.Container(
                 ])
             )
         ]),
-        html.Div(
-            dbc.Row([
-                dbc.Col(
-                    html.Div(id="show-download-btn")
-                )
-            ])),
         dbc.Row([
             dbc.Col(
-                html.Div(id="show-text-content")
+                html.Div([
+                    dbc.Button("Show Text Data", id="display-text-btn", color="success", style={'padding':'1em','width':'100%'}),
+                    html.Div(id="show-text-content")
+                ])
             )
-        ]),
-#        dbc.Row([
-#            dbc.Col(
-#                html.Div([html.Pre(html.ObjectEl(data="/Forecast_Search_Wizard/FSW_OUTPUT/{}".format(sa.fname)))],style={'padding':'1em','width':'100%'})
-#            )
-#        ]),
+        ]),        
+
     ]),
     ])
 )
@@ -315,16 +308,6 @@ def func_test(n_clicks):
         "/Forecast_Search_Wizard/FSW_OUTPUT/{}".format(sa.fname)
     )
 
-# ----------------------------------------
-#        End Download Setup
-# ----------------------------------------
-
-def arg_from_list(this_list):
-    cmd_str = ''
-    for x in this_list:
-        fixed = x.replace(' ','_')
-        cmd_str = cmd_str + fixed + ' '
-    return cmd_str
 
 # ----------------------------------------
 #        Input words
@@ -430,6 +413,13 @@ def get_full_vars(n_clicks):
 #        Execute and monitor FSW script
 # ----------------------------------------
 
+def arg_from_list(this_list):
+    cmd_str = ''
+    for x in this_list:
+        fixed = x.replace(' ','_')
+        cmd_str = cmd_str + fixed + ' '
+    return cmd_str
+
 @app.callback(Output("script-status", "children"),
                 [Input("run_script","n_clicks")],)
 def execute_script(n_clicks):
@@ -452,18 +442,20 @@ def execute_script(n_clicks):
             time.sleep(5)
         else:
             sa.new_file = new_file_available()
-            show_download_button();
-            show_text_content();
+            #show_download_button();
+            #show_text_content();
             return "Script Completed! Click link below to download output file."
     else:
         return "Ensure you've submitted both a word/phrase list and a product list before continuing!"
+
+#mSNu87%H2%2
 
 # ----------------------------------------
 #        Display Download Button
 # ----------------------------------------
 
-@app.callback(Output("download-btn-section", "children"),
-                [Input("n_clicks")],)
+#@app.callback(Output("download-btn-section",),
+#                [Input("script-status", "n_clicks")],)
 def show_download_button():
     return(dbc.Button("Show-download button", id="ignore", color="success", style={'padding':'1em','width':'100%'}),
     dcc.Download(id="ignore"))
@@ -473,8 +465,8 @@ def show_download_button():
 # ----------------------------------------
 
 @app.callback(Output("show-text-content", "children"),
-                [Input("n_clicks")],)
-def show_text_content():
+                [Input("display-text-btn","n_clicks")],)
+def show_file_content():
     return([html.Pre(html.ObjectEl(data="/Forecast_Search_Wizard/FSW_OUTPUT/{}".format(sa.fname)))])
 
 # ----------------------------------------

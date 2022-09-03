@@ -19,7 +19,10 @@ import numpy as np
 app = dash.Dash(__name__, external_stylesheets= [dbc.themes.DARKLY])#, 'https://codepen.io/chriddyp/pen/bWLwgP.css'])
 app.title = "Forecast Search Wizard"
 
-# set end of year slider based on current year
+# ----------------------------------------
+#        Set Slider end year = current year
+# ----------------------------------------
+
 now = datetime.utcnow()
 this_year = now.year
 next_year = this_year + 1
@@ -58,63 +61,18 @@ def make_dataframe(text_data):
             data = {'dts':dts_pd, 'product':product}
             df_full = pd.DataFrame(data)
             df_full.set_index('dts', inplace=True)
-            #df = df_full[df_full['product'] == 'AFDGRR']
 
     #print(df_full)
     return df_full
 
-bold = {'font-weight': 'bold'}
-feedback = {'border': '2px gray solid', 'padding':'1em'}
+# ----------------------------------------
+#        Define Page Layout
+# ----------------------------------------
 
-top_content = [
-            dbc.CardBody([html.H1("Forecast Search Wizard", className="card-title",style={'font-weight': 'bold', 'font-style': 'italic'}),
-                html.H4(
-                    "An application to search National Weather Service Text Products by keywords",
-                    className="card-text", style={'color':'rgb(52,152,219)', 'font-weight': 'bold', 'font-style': 'italic'}
-                ),
-                html.H5(
-                    "Developed by Eric Allen (eric.allen@noaa.gov)",
-                    className="card-text",
-                ),
-                html.Div([
-                dbc.CardLink("GitHub", href="https://github.com/allenea/Forecast_Search_Wizard")]),
-                html.Div([
-                dbc.CardLink("@WxSearchWizard", href="https://twitter.com/WxSearchWizard")]),])
-]
 
-step_one = [
-            dbc.CardBody([html.H5("Enter Words or Phrases you want to search for, separating each by a comma. Then click button to submit.", 
-            className="card-text"),
-            ])
-]
-
-step_two = [
-            dbc.CardBody([html.H5("Enter Products in upper case and separated by spaces. Click to create product list.",
-            className="card-text"),
-            ])
-]
-
-step_three = [
-            dbc.CardBody([html.H5("Choose Range of Years to Search", className="card-text"),
-            ])
-]
-
-step_four = [
-            dbc.CardBody([html.H5("Provide Details About How to Search", className="card-text"),
-            ])
-]
-
-view_output = [
-            dbc.CardBody([html.H5("Output", className="card-title", style=bold),
-                html.P(
-                    "Forecast Search Wizard Results",
-                    className="card-text",
-                ),
-            ])
-]
 
 # ----------------------------------------
-# Set up class
+#        Set up class then instantiate
 # ----------------------------------------
 class FSW:
     def __init__(self,word_list=None, product_list=None,start_year=2010,end_year=this_year,isAnd=False,byForecast=True,isGrep=True):
@@ -145,11 +103,60 @@ def new_file_available():
         return False
 
 sa = FSW()
-#sa.original_fpath = get_latest_dir_item()
-#sa.fpath = get_latest_dir_item()
+
 # ----------------------------------------
-# Webpage layout
+#        Define Webpage variables
 # ----------------------------------------
+
+bold = {'font-weight': 'bold'}
+feedback = {'border': '2px gray solid', 'padding':'1em'}
+
+top_content = [
+            dbc.CardBody([html.H1("Forecast Search Wizard", className="card-title",style={'font-weight': 'bold', 'font-style': 'italic'}),
+                html.H4(
+                    "An application to search National Weather Service Text Products by keywords",
+                    className="card-text", style={'color':'rgb(52,152,219)', 'font-weight': 'bold', 'font-style': 'italic'}
+                ),
+                html.H5(
+                    "Developed by Eric Allen (eric.allen@noaa.gov)",
+                    className="card-text",
+                ),
+                html.Div([
+                dbc.CardLink("GitHub", href="https://github.com/allenea/Forecast_Search_Wizard")]),
+                html.Div([
+                dbc.CardLink("@WxSearchWizard", href="https://twitter.com/WxSearchWizard")]),])
+]
+
+step_one = [
+            dbc.CardBody([html.H5("Enter Words or Phrases you want to search for, separating each by a comma. Then click button to submit.", 
+            className="card-text"),
+            ])]
+
+step_two = [
+            dbc.CardBody([html.H5("Enter Products in upper case and separated by spaces. Click to create product list.",
+            className="card-text"),
+            ])]
+
+step_three = [
+            dbc.CardBody([html.H5("Choose Range of Years to Search", className="card-text"),
+            ])]
+
+step_four = [
+            dbc.CardBody([html.H5("Provide Details About How to Search", className="card-text"),
+            ])]
+
+view_output = [
+            dbc.CardBody([html.H5("Output", className="card-title", style=bold),
+                html.P(
+                    "Forecast Search Wizard Results",
+                    className="card-text",
+                ),
+            ])]
+
+# ----------------------------------------
+#        Build Webpage layout
+# ----------------------------------------
+
 app.layout = dbc.Container(
     html.Div([
         dbc.Row(dbc.Col(html.Div(html.Hr()))),
@@ -235,7 +242,7 @@ app.layout = dbc.Container(
         ]),
 
         #############
-        # Step five and six
+        # Check Selections
         #############  
         dbc.Row([
             dbc.Col(
@@ -248,11 +255,14 @@ app.layout = dbc.Container(
                 )
             ),]),
 
+        #############
+        # Check Launch Script
+        #############  
         dbc.Row([
             dbc.Col(
                 html.Div([
                 dbc.Button("Click Here to Launch FSW Script",id='run_script', n_clicks=0, style={'padding':'1em','width':'100%'}),
-                html.Div(children="You'll be notified here when the script completes ...",id="run_script-out",style=feedback)
+                html.Div(children="You'll be notified here when the script completes ...",id="script-status",style=feedback)
                 ],
                 style={'padding':'1em'})
             ),
@@ -264,16 +274,17 @@ app.layout = dbc.Container(
         dbc.Row([
             dbc.Col(
                 html.Div([
-                    dbc.Button("Download FSW Output", id="test-download-btn", color="success", style={'padding':'1em','width':'100%'}),
-                    dcc.Download(id="download-test")
+                    dbc.Button("Download FSW Output", id="download-btn", color="success", style={'padding':'1em','width':'100%'}),
+                    dcc.Download(id="download")
                 ])
             )
         ]),
-        dbc.Row([
-            dbc.Col(
-                html.Div(id="show-download-btn")
-            )
-        ]),
+        html.Div(
+            dbc.Row([
+                dbc.Col(
+                    html.Div(id="show-download-btn")
+                )
+            ])),
         dbc.Row([
             dbc.Col(
                 html.Div(id="show-text-content")
@@ -289,13 +300,14 @@ app.layout = dbc.Container(
 )
 
 #mSNu87%H2%2
+
 # ----------------------------------------
-### Download Setup
+#        Download Setup
 # ----------------------------------------
 
 @app.callback(
-    Output("download-test", "data"),
-    Input("test-download-btn", "n_clicks"),
+    Output("download", "data"),
+    Input("download-btn", "n_clicks"),
     prevent_initial_call=True,
 )
 def func_test(n_clicks):
@@ -304,7 +316,7 @@ def func_test(n_clicks):
     )
 
 # ----------------------------------------
-### End Download Setup
+#        End Download Setup
 # ----------------------------------------
 
 def arg_from_list(this_list):
@@ -314,7 +326,10 @@ def arg_from_list(this_list):
         cmd_str = cmd_str + fixed + ' '
     return cmd_str
 
-# input words
+# ----------------------------------------
+#        Input words
+# ----------------------------------------
+
 @app.callback(Output("input_words_list-out", "children"),
                 [Input("input_words_list_submit","n_clicks")],
                 [State("input_words_list","value")])
@@ -333,8 +348,10 @@ def create_word_list(n_clicks,myvalue):
     else:
         return
 
+# ----------------------------------------
+#        Product list
+# ----------------------------------------
 
-# product list
 @app.callback(Output("forecast_product_list-out", "children"),
                 [Input("forecast_product_list_submit","n_clicks")],
                 [State("forecast_product_list","value")])
@@ -352,7 +369,9 @@ def create__product_list(n_clicks,myvalue):
     else:
         return
 
-# slider values
+# ----------------------------------------
+#        Slider values
+# ----------------------------------------
 @app.callback(Output("slider_values-out", "children"),
                 [Input('slider_values',"value")])
 def update_output(value):
@@ -361,6 +380,12 @@ def update_output(value):
     end_year = value[1]
     sa.end_year = end_year
     return 'start_year = {} ........ end_year = {}'.format(start_year,end_year)
+
+#mSNu87%H2%2
+
+# ----------------------------------------
+#        Booleans
+# ----------------------------------------
 
 @app.callback(
     Output("isAnd-out", "children"),
@@ -386,9 +411,8 @@ def on_form_change(isGrep_value):
     sa.isGrep = isGrep_value
     return template
 
-
 # ----------------------------------------
-### Summarize arguments
+#        Summarize arguments
 # ----------------------------------------
 
 @app.callback(Output("full_vars-out", "children"),
@@ -403,29 +427,11 @@ def get_full_vars(n_clicks):
     return template
 
 # ----------------------------------------
-### Execute and monitor FSW script
+#        Execute and monitor FSW script
 # ----------------------------------------
 
-def read_file(file):
-    fin = open(file,'r')
-    text = fin.read()
-    fin.close()
-    print(text)
-    return text
-
-@app.callback(Output("show-download-btn", "children"),
-                [Input("n_clicks")],)
-def show_download_button():
-    return(dbc.Button("Show-download button", id="ignore", color="success", style={'padding':'1em','width':'100%'}),
-    dcc.Download(id="ignore"))
-
-@app.callback(Output("show-text-content", "children"),
-                [Input("n_clicks")],)
-def show_text_content():
-    return([html.Pre(html.ObjectEl(data="/Forecast_Search_Wizard/FSW_OUTPUT/{}".format(sa.fname)))])
-
-@app.callback(Output("run_script-out", "children"),
-                [Input("run_script","n_clicks")],)   
+@app.callback(Output("script-status", "children"),
+                [Input("run_script","n_clicks")],)
 def execute_script(n_clicks):
     if n_clicks == 0:
         return "After clicking above, you'll be notified here when the script completes ... "
@@ -453,6 +459,25 @@ def execute_script(n_clicks):
         return "Ensure you've submitted both a word/phrase list and a product list before continuing!"
 
 # ----------------------------------------
+#        Display Download Button
+# ----------------------------------------
+
+@app.callback(Output("download-btn-section", "children"),
+                [Input("n_clicks")],)
+def show_download_button():
+    return(dbc.Button("Show-download button", id="ignore", color="success", style={'padding':'1em','width':'100%'}),
+    dcc.Download(id="ignore"))
+
+# ----------------------------------------
+#        Show Text output window
+# ----------------------------------------
+
+@app.callback(Output("show-text-content", "children"),
+                [Input("n_clicks")],)
+def show_text_content():
+    return([html.Pre(html.ObjectEl(data="/Forecast_Search_Wizard/FSW_OUTPUT/{}".format(sa.fname)))])
+
+# ----------------------------------------
 ### Pandas stuff
 # ----------------------------------------
 
@@ -465,13 +490,6 @@ def make_dataframe(text):
             values = line.split('\t')
             dts.append(values[0])
             product.append(values[1][1:])
-
-#@app.callback(Output("slider_values-out", "children"),
-#                [Input('slider_values',"value")])
-#def display_arguments():
-#    template = "{} {} {} {}".format(script_args.script_args.isGrep,script_args.start_year)
-#    print(template)
-#    return
 
 
 #    dts_pd = pd.to_datetime(dts,infer_datetime_format=True)

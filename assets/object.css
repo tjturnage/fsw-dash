@@ -1,0 +1,10 @@
+object {
+	box-align: middle;
+    width: 100%;
+    max-width: 800px;
+    height: 400px;
+    font-size: 1.0rem;
+    border: thick #32a1ce;
+	margin-right:30px;
+	
+}

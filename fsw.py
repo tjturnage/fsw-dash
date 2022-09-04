@@ -4,16 +4,18 @@ import dash
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output,State
-import base64
-from urllib.parse import quote as urlquote
 
-from flask import Flask, send_from_directory
 import pandas as pd
 import sys
 
 import time
 import plotly.graph_objs as go
 import numpy as np
+
+
+# ----------------------------------------
+#        Initiate Dash app
+# ----------------------------------------
 
 app = dash.Dash(__name__, external_stylesheets= [dbc.themes.DARKLY])#, 'https://codepen.io/chriddyp/pen/bWLwgP.css'])
 app.title = "Forecast Search Wizard"
@@ -262,7 +264,7 @@ app.layout = dbc.Container(
         dbc.Row([
             dbc.Col(
                 html.Div([
-                    dbc.Button("Download FSW Output", id="download-btn", color="success", style={'padding':'2em','width':'100%'}),
+                    dbc.Button("Download FSW Output", id="download-btn", color="success", style={'padding':'1em','width':'100%'}),
                     dcc.Download(id="download")
                 ])
             )
@@ -270,14 +272,14 @@ app.layout = dbc.Container(
         dbc.Row([
             dbc.Col(
                 html.Div([
-                    dbc.Button("Show Text Data", id="display-text-btn", color="success", style={'padding':'2em','width':'100%'}),
+                    dbc.Button("Show File Content", id="display-file-content-btn", color="success", style={'padding':'1em','width':'100%'}),
                 ])
             )
         ]),        
         dbc.Row([
             dbc.Col(
                 html.Div([
-                    html.Div(id="show-text-content")
+                    html.Div(children="File output will display here... ",id="display-file-content-response",style=feedback)
                 ])
             )
         ]),  
@@ -413,6 +415,11 @@ def arg_from_list(this_list):
         cmd_str = cmd_str + fixed + ' '
     return cmd_str
 
+def process_text():
+    cp_cmd_str = "cp /Forecast_Search_Wizard/FSW_OUTPUT/{} /home/thomas.turnage/scripts/fsw-dash/assets/output.txt".format(sa.fname)
+    os.system(cp_cmd_str)
+    return
+
 @app.callback(Output("script-status", "children"),
                 [Input("run_script","n_clicks")],)
 def execute_script(n_clicks):
@@ -435,8 +442,7 @@ def execute_script(n_clicks):
             time.sleep(5)
         else:
             sa.new_file = new_file_available()
-            #show_download_button();
-            #show_text_content();
+            process_text();
             return "Script Completed! Click link below to download output file."
     else:
         return "Ensure you've submitted both a word/phrase list and a product list before continuing!"
@@ -456,12 +462,13 @@ def execute_script(n_clicks):
 # ----------------------------------------
 #        Show Text output window
 # ----------------------------------------
-
-@app.callback(Output("show-text-content", "children"),
-                [Input("display-text-btn","n_clicks")],)
-def show_file_content():
-    #return([html.Pre(html.ObjectEl(data="/Forecast_Search_Wizard/FSW_OUTPUT/{}".format(sa.fname)))])
-    return("hello!")
+@app.callback(
+    Output("display-file-content-response", "children"),
+    Input("display-file-content-btn","n_clicks"),
+    prevent_initial_call=True,
+)
+def show_file_content(n_clicks):
+    return [html.ObjectEl(data="https://fsw.nws.noaa.gov/assets/output.txt")]
 # ----------------------------------------
 ### Pandas stuff
 # ----------------------------------------

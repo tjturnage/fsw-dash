@@ -251,12 +251,13 @@ app.layout = dbc.Container(
         dbc.Row([
             dbc.Col(
                 html.Div([
-                dbc.Button("Click Here to Launch FSW Script",id='run_script', n_clicks=0, style={'padding':'1em','width':'100%'}),
-                html.Div(children="You'll be notified here when the script completes ...",id="script-status",style=feedback)
+                    dbc.Button("Click Here to Launch FSW Script",id='run_script', n_clicks=0, style={'padding':'1em','width':'100%'}),
+                    html.Div(children="You'll be notified here when the script completes ...",id="script-status",style=feedback)
                 ],
-                style={'padding':'1em'})
+                style={'padding':'1em'}
+                )
             ),
-        ],style={'padding':'1em'}),
+        ],style={'padding':'0.5em'}),
 
         #############
         # View output
@@ -265,25 +266,23 @@ app.layout = dbc.Container(
             dbc.Col(
                 html.Div([
                     dbc.Button("Show File Content", id="display-file-content-btn", color="success", style={'padding':'1em','width':'100%'}),
-                ])
-            )
-        ]),        
-        dbc.Row([
-            dbc.Col(
-                html.Div([
                     html.Div(children="File output will display here... ",id="display-file-content-response",style=feedback)
-                ])
+                ],
+                style={'padding':'1em'})
             )
-        ]),  
-    ]),
-            dbc.Row([
+        ],style={'padding':'0.5em'}),
+
+        dbc.Row([
             dbc.Col(
                 html.Div([
                     dbc.Button("Download FSW Output File", id="download-btn", color="success", style={'padding':'1em','width':'100%'}),
                     dcc.Download(id="download")
-                ])
+                ],
+                style={'padding':'1em'})
             )
-        ]),
+        ],style={'padding':'0.5em'}),
+    ]),
+
     ])
 )
 
@@ -481,18 +480,19 @@ def make_dataframe():
     product = []
     lines = text.splitlines()
     for line in lines:
-        if line[0] in ('0','1'):
-            values = line.split('\t')
-            dts.append(values[0])
-            product.append(values[1][1:])
+        if len(line) > 0:
+            if line[0] in ('0','1'):
+                values = line.split('\t')
+                dts.append(values[0])
+                product.append(values[1][1:])
 
 
     dts_pd = pd.to_datetime(dts,infer_datetime_format=True)
     data = {'dts':dts_pd, 'product':product}
     df_full = pd.DataFrame(data)
     df_full.set_index('dts', inplace=True)
-    #monthly = df_full.resample('M').count()
-    #print(monthly)
+    monthly = df_full.resample('M').count()
+    print(monthly)
     #x=df.index
     #y=monthly['product']
     #fig = go.Figure(data=go.Scatter(x=x, y=y))

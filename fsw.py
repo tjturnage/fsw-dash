@@ -279,7 +279,7 @@ app.layout = dbc.Container(
             dbc.Row([
             dbc.Col(
                 html.Div([
-                    dbc.Button("Download FSW Output", id="download-btn", color="success", style={'padding':'1em','width':'100%'}),
+                    dbc.Button("Download FSW Output File", id="download-btn", color="success", style={'padding':'1em','width':'100%'}),
                     dcc.Download(id="download")
                 ])
             )
@@ -443,7 +443,7 @@ def execute_script(n_clicks):
         else:
             sa.new_file = new_file_available()
             process_text();
-            return "Script Completed! Click link below to download output file."
+            return "Script Completed! Click a link below to show file content or download the file."
     else:
         return "Ensure you've submitted both a word/phrase list and a product list before continuing!"
 
@@ -473,7 +473,10 @@ def show_file_content(n_clicks):
 ### Pandas stuff
 # ----------------------------------------
 
-def make_dataframe(text):
+def make_dataframe():
+    fin = open('/home/thomas.turnage/scripts/fsw-dash/assets/output.txt', 'r')
+    text = fin.read()
+    fin.close()
     dts = []
     product = []
     lines = text.splitlines()
@@ -484,27 +487,18 @@ def make_dataframe(text):
             product.append(values[1][1:])
 
 
-#    dts_pd = pd.to_datetime(dts,infer_datetime_format=True)
-#    data = {'dts':dts_pd, 'product':product}
-#    df_full = pd.DataFrame(data)
-#    df_full.set_index('dts', inplace=True)
-#    df = df_full[df_full['product'] == 'AFDGRR']
-#    monthly = df.resample('M').count()
-#    #print(monthly)
-#    x=df.index
-#    y=monthly['product']
-#    fig = go.Figure(data=go.Scatter(x=x, y=y))
-#    fig.show()
+    dts_pd = pd.to_datetime(dts,infer_datetime_format=True)
+    data = {'dts':dts_pd, 'product':product}
+    df_full = pd.DataFrame(data)
+    df_full.set_index('dts', inplace=True)
+    #monthly = df_full.resample('M').count()
+    #print(monthly)
+    #x=df.index
+    #y=monthly['product']
+    #fig = go.Figure(data=go.Scatter(x=x, y=y))
+    #fig.show()
+    return df_full
 
-# def get_text_data():
-#     fname = os.listdir(FSW_OUTPUT_DIR)[-1]
-#     if 'NONE' in str(fname):
-#         fname = os.listdir(FSW_OUTPUT_DIR)[-2]
-#     text_file_path = os.path.join(FSW_OUTPUT_DIR,fname)
-#     fin = open(text_file_path, 'r')
-#     text_data = fin.read()
-#     fin.close()
-#     return text_data
 
 if __name__ == '__main__':
-    app.run_server(debug="True")
+    app.run_server()

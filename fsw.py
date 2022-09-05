@@ -264,14 +264,6 @@ app.layout = dbc.Container(
         dbc.Row([
             dbc.Col(
                 html.Div([
-                    dbc.Button("Download FSW Output", id="download-btn", color="success", style={'padding':'1em','width':'100%'}),
-                    dcc.Download(id="download")
-                ])
-            )
-        ]),
-        dbc.Row([
-            dbc.Col(
-                html.Div([
                     dbc.Button("Show File Content", id="display-file-content-btn", color="success", style={'padding':'1em','width':'100%'}),
                 ])
             )
@@ -284,6 +276,14 @@ app.layout = dbc.Container(
             )
         ]),  
     ]),
+            dbc.Row([
+            dbc.Col(
+                html.Div([
+                    dbc.Button("Download FSW Output", id="download-btn", color="success", style={'padding':'1em','width':'100%'}),
+                    dcc.Download(id="download")
+                ])
+            )
+        ]),
     ])
 )
 

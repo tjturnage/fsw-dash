@@ -404,8 +404,8 @@ def get_full_vars(n_clicks):
 #        Execute and monitor FSW script
 # ----------------------------------------
 
-# the word or product lists are converted to a single string with "_" between the elements
-# in the NAMELIST_args.py script, this single string gets converted back to a list
+# Here, the word or product lists are converted to a single string with "_" between the elements.
+# Then, in the NAMELIST_args.py script, this single string is split by "_" to get back to a list.
 def arg_from_list(this_list):
     cmd_str = ''
     for x in this_list:
@@ -413,12 +413,18 @@ def arg_from_list(this_list):
         cmd_str = cmd_str + fixed + ' '
     return cmd_str
 
+# this is where the newly created file is copied to output.txt in the assets folder
+# I chose this location because people cas access it through the web interface
+# I gave this a fixed name because an actual fixed URL address is how I display text in an object element
+# here is the line of code that uses the copied file ...
+#    return [html.ObjectEl(data="https://fsw.nws.noaa.gov/assets/output.txt")]
+# obviously I could make this URL address a variable at some point
 def process_text():
     cp_cmd_str = "cp /Forecast_Search_Wizard/FSW_OUTPUT/{0} /Forecast_Search_Wizard/web/fsw-dash/assets/output.txt".format(sa.fname)
     os.system(cp_cmd_str)
     return
 
-# need to update this so if the script is launched again output will return to what is said when n_clicks == 0
+# need to update this so if the script is launched again output will return to what it is when n_clicks == 0
 @app.callback(Output("script-status", "children"),
                 [Input("run_script","n_clicks")],)
 def execute_script(n_clicks):
@@ -448,7 +454,6 @@ def execute_script(n_clicks):
 
 #mSNu87%H2%2
 
-
 # ----------------------------------------
 #        Show Text output window
 # ----------------------------------------
@@ -458,7 +463,7 @@ def execute_script(n_clicks):
     prevent_initial_call=True,
 )
 # The html default for object element width is way too small.
-# Thus, there is a "assets/object.css" file to override the settings
+# Thus, there is a "assets/object.css" file that overrides the defaults
 def show_file_content(n_clicks):
     return [html.ObjectEl(data="https://fsw.nws.noaa.gov/assets/output.txt")]
 

@@ -40,7 +40,7 @@ try:
     FSW_DIR = '/Forecast_Search_Wizard'
     DATA_DIR = os.path.join(root_dir, 'TEXT_DATA')
     RUN_DIR = os.path.join(FSW_DIR, 'RUN_ME')
-    #print(DATA_DIR)
+    print(DATA_DIR)
     FSW_OUTPUT_DIR = os.path.join(FSW_DIR,'FSW_OUTPUT')
 
 # if not on the cloud instance, then I'm probably running the flask web server on my laptop
@@ -48,6 +48,7 @@ except:
     root_dir = 'C:/data/'
     #root_dir = '/home/tjturnage/'
 
+# imports dependencies from FSW 
 try:
     os.chdir(RUN_DIR)
     sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -300,8 +301,6 @@ def func_test(n_clicks):
 #        Input words
 # ----------------------------------------
 
-# the only data validation being done so far is taking out extra spaces
-# much more to do here
 @app.callback(Output("input_words_list-out", "children"),
                 [Input("input_words_list_submit","n_clicks")],
                 [State("input_words_list","value")])
@@ -324,8 +323,6 @@ def create_word_list(n_clicks,myvalue):
 #        Product list
 # ----------------------------------------
 
-# data validation is practically non-existent here
-# much more to do
 @app.callback(Output("forecast_product_list-out", "children"),
                 [Input("forecast_product_list_submit","n_clicks")],
                 [State("forecast_product_list","value")])
@@ -404,8 +401,6 @@ def get_full_vars(n_clicks):
 #        Execute and monitor FSW script
 # ----------------------------------------
 
-# the word or product lists are converted to a single string with "_" between the elements
-# in the NAMELIST_args.py script, this single string gets converted back to a list
 def arg_from_list(this_list):
     cmd_str = ''
     for x in this_list:
@@ -414,11 +409,10 @@ def arg_from_list(this_list):
     return cmd_str
 
 def process_text():
-    cp_cmd_str = "cp /Forecast_Search_Wizard/FSW_OUTPUT/{0} /Forecast_Search_Wizard/web/fsw-dash/assets/output.txt".format(sa.fname)
+    cp_cmd_str = "cp /Forecast_Search_Wizard/FSW_OUTPUT/{} /home/thomas.turnage/scripts/fsw-dash/assets/output.txt".format(sa.fname)
     os.system(cp_cmd_str)
     return
 
-# need to update this so if the script is launched again output will return to what is said when n_clicks == 0
 @app.callback(Output("script-status", "children"),
                 [Input("run_script","n_clicks")],)
 def execute_script(n_clicks):
@@ -448,6 +442,15 @@ def execute_script(n_clicks):
 
 #mSNu87%H2%2
 
+# ----------------------------------------
+#        Display Download Button
+# ----------------------------------------
+
+#@app.callback(Output("download-btn-section",),
+#                [Input("script-status", "n_clicks")],)
+#def show_download_button():
+#    return(dbc.Button("Show-download button", id="ignore", color="success", style={'padding':'1em','width':'100%'}),
+#    dcc.Download(id="ignore"))
 
 # ----------------------------------------
 #        Show Text output window
@@ -458,10 +461,9 @@ def execute_script(n_clicks):
     prevent_initial_call=True,
 )
 # The html default for object element width is way too small.
-# Thus, there is a "assets/object.css" file to override the settings
+# Thus, there is "assets/object.css" to override the settings
 def show_file_content(n_clicks):
     return [html.ObjectEl(data="https://fsw.nws.noaa.gov/assets/output.txt")]
-
 
 if __name__ == '__main__':
     app.run_server()

@@ -9,12 +9,7 @@ import dash_bootstrap_components as dbc
 
 # State allows the user to enter input before proceeding
 from dash.dependencies import Input, Output,State
-
-import pandas as pd
-
 import time
-import plotly.graph_objs as go
-import numpy as np
 
 # ----------------------------------------
 #        Initiate Dash app
@@ -35,12 +30,10 @@ next_year = this_year + 1
 
 # this confirms that we're on the cloud instance and sets paths accordingly
 try:
-    os.listdir('/data/')
     root_dir = '/data'
     FSW_DIR = '/Forecast_Search_Wizard'
     DATA_DIR = os.path.join(root_dir, 'TEXT_DATA')
     RUN_DIR = os.path.join(FSW_DIR, 'RUN_ME')
-    #print(DATA_DIR)
     FSW_OUTPUT_DIR = os.path.join(FSW_DIR,'FSW_OUTPUT')
 
 # if not on the cloud instance, then I'm probably running the flask web server on my laptop
@@ -74,7 +67,11 @@ class FSW:
         self.fpath_contents = None
 
 def new_file_available():
-    sa.fname = os.listdir(FSW_OUTPUT_DIR)[-1]
+    """
+    file listing is now sorted to assure that the newest file is at the end of the list
+    There was some weirdness going on where "." and ".." were out of sequence and causing problems
+    """
+    sa.fname = sorted(os.listdir(FSW_OUTPUT_DIR))[-1]
     this_fpath = os.path.join(FSW_OUTPUT_DIR,sa.fname)
     print(this_fpath)
     if this_fpath != sa.original_fpath:
@@ -280,6 +277,18 @@ app.layout = dbc.Container(
 #mSNu87%H2%2
 
 # ----------------------------------------
+#        Data validation, only digits, upper case letters, and commas allowed
+# ----------------------------------------
+import re
+test = '[a-z]|\{|\}|\[|\]|\(|\)|\$|\&|\=|\\|\/'
+
+def regex_test(test_string):
+    test = '[a-z]|\{|\}|\[|\]|\(|\)|\$|\&|\=|/'
+    m = re.search(test,test_string)
+    # returns True if no disallowed characters are found
+    return m is None
+
+# ----------------------------------------
 #        Download Setup
 # ----------------------------------------
 
@@ -309,14 +318,17 @@ def create_word_list(n_clicks,myvalue):
     original_word_list = sa.word_list
     if n_clicks > 0:
         this_str = str(myvalue)
-        fixed_str = this_str.replace(', ',',')
-        word_list = fixed_str.split(',')
-        if word_list != original_word_list:
-            sa.word_list = word_list        
-            sa.made_word_list = True
-            return str(sa.word_list)
+        if regex_test(this_str):
+            fixed_str = this_str.replace(', ',',')
+            word_list = fixed_str.split(',')
+            if word_list != original_word_list:
+                sa.word_list = word_list        
+                sa.made_word_list = True
+                return str(sa.word_list)
+            else:
+                return
         else:
-            return
+            return 'Only upper case letters, digits, and commas allowed!'
     else:
         return
 
@@ -333,13 +345,16 @@ def create__product_list(n_clicks,myvalue):
     original_product_list = sa.product_list
     if n_clicks > 0:
         input_string = str(myvalue)
-        product_list = input_string.split(' ')
-        if product_list != original_product_list:
-            sa.product_list = product_list
-            sa.made_product_list = True
-            return str(sa.product_list)
+        if regex_test(input_string):
+            product_list = input_string.split(' ')
+            if product_list != original_product_list:
+                sa.product_list = product_list
+                sa.made_product_list = True
+                return str(sa.product_list)
+            else:
+                return
         else:
-            return
+            return 'Only upper case letters, digits, and commas allowed!'
     else:
         return
 
@@ -406,6 +421,7 @@ def get_full_vars(n_clicks):
 
 # Here, the word or product lists are converted to a single string with "_" between the elements.
 # Then, in the NAMELIST_args.py script, this single string is split by "_" to get back to a list.
+# this is the easiest way I know of to pass args that are separated by spaces or commas
 def arg_from_list(this_list):
     cmd_str = ''
     for x in this_list:

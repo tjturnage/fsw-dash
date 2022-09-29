@@ -283,7 +283,7 @@ import re
 test = '[a-z]|\{|\}|\[|\]|\(|\)|\$|\&|\=|\*|\-|\.|\\|\/'
 
 def regex_test(test_string):
-    test = '[a-z]|\{|\}|\[|\]|\(|\)|\$|\&|\=|/'
+    test = '[a-z]|\{|\}|\[|\]|\(|\)|\$|\&|\=|\*|\-|\.|\\|\/'
     m = re.search(test,test_string)
     # returns True if no disallowed characters are found
     return m is None

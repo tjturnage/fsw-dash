@@ -280,7 +280,7 @@ app.layout = dbc.Container(
 #        Data validation, only digits, upper case letters, and commas allowed
 # ----------------------------------------
 import re
-test = '[a-z]|\{|\}|\[|\]|\(|\)|\$|\&|\=|\\|\/'
+test = '[a-z]|\{|\}|\[|\]|\(|\)|\$|\&|\=|\*|\-|\.|\\|\/'
 
 def regex_test(test_string):
     test = '[a-z]|\{|\}|\[|\]|\(|\)|\$|\&|\=|/'

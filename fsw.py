@@ -1,7 +1,10 @@
 import os
 import sys
+import re
 from datetime import datetime
 import dash
+
+# dcc = dash core components
 from dash import html, dcc
 
 # bootstrap is what helps styling for a better presentation
@@ -12,21 +15,8 @@ from dash.dependencies import Input, Output,State
 import time
 
 # ----------------------------------------
-#        Initiate Dash app
+#        Attempt to set up environment
 # ----------------------------------------
-
-app = dash.Dash(__name__, external_stylesheets= [dbc.themes.DARKLY])
-app.title = "Forecast Search Wizard"
-
-# ----------------------------------------
-#        Set Slider end year = current year
-# ----------------------------------------
-
-now = datetime.utcnow()
-this_year = now.year
-
-# next year is needed to bump out slider range to include current year
-next_year = this_year + 1
 
 # this confirms that we're on the cloud instance and sets paths accordingly
 try:
@@ -50,6 +40,10 @@ except:
 # ----------------------------------------
 #        Set up class then instantiate
 # ----------------------------------------
+
+now = datetime.utcnow()
+this_year = now.year        # Set Slider end year to equal current year
+next_year = this_year + 1   # ensures range command to build the slider includes this year
 class FSW:
     def __init__(self,word_list=None, product_list=None,start_year=2010,end_year=this_year,isAnd=False,byForecast=True,isGrep=True):
         self.word_list = word_list
@@ -66,26 +60,21 @@ class FSW:
         self.original_fpath = None
         self.fpath_contents = None
 
-def new_file_available():
-    """
-    file listing is now sorted to assure that the newest file is at the end of the list
-    There was some weirdness going on where "." and ".." were out of sequence and causing problems
-    """
-    sa.fname = sorted(os.listdir(FSW_OUTPUT_DIR))[-1]
-    this_fpath = os.path.join(FSW_OUTPUT_DIR,sa.fname)
-    print(this_fpath)
-    if this_fpath != sa.original_fpath:
-        print(f"Yay! {this_fpath}")
-        sa.fpath = this_fpath
-        return True
-    else:
-        print("Not yet")
-        return False
-
 sa = FSW()
 
 # ----------------------------------------
-#        Define Webpage variables
+#        Initiate Dash app
+# ----------------------------------------
+
+# here is where different sytlesheets could be used for the interface
+# see https://dash-bootstrap-components.opensource.faculty.ai/docs/themes/explorer/
+# it would be nice to replace the default dash favicon with one of our own
+
+app = dash.Dash(__name__, external_stylesheets= [dbc.themes.DARKLY])
+app.title = "Forecast Search Wizard"
+
+# ----------------------------------------
+#        Define some webpage layout variables
 # ----------------------------------------
 
 bold = {'font-weight': 'bold'}
@@ -128,9 +117,9 @@ view_output = [
                     className="card-text",
                 ),])]
 
-# ----------------------------------------
-#        Build Webpage layout
-# ----------------------------------------
+################################################################################
+#      Build Webpage Layout
+################################################################################
 
 app.layout = dbc.Container(
     html.Div([
@@ -155,9 +144,10 @@ app.layout = dbc.Container(
                 html.Div(id='forecast_product_list-out', style=feedback,)])
         ),
 
-        #############
-        # Range Slider
-        #############
+        # ----------------------------------------
+        #   Range Slider
+        # ----------------------------------------
+
         dbc.Row(dbc.Card(step_three, color="info", inverse=True), style={'padding':'1em'}),
         dbc.Row([
             html.Div([
@@ -174,9 +164,10 @@ app.layout = dbc.Container(
             html.Div(id='slider_values-out', style=feedback,)
             ]),
 
-        #############
-        # Search Methods
-        #############    
+        # ----------------------------------------
+        #   Search Methods (Boolean options)
+        # ----------------------------------------
+
         dbc.Row(dbc.Card(step_four, color="info", inverse=True), style={'padding':'1em'}),
         dbc.Row([
             dbc.Col(
@@ -216,9 +207,10 @@ app.layout = dbc.Container(
 
         ]),
 
-        #############
-        # Check Selections
-        #############  
+        # ----------------------------------------
+        #   Check Selections
+        # ----------------------------------------
+
         dbc.Row([
             dbc.Col(
                 html.Div([
@@ -230,9 +222,10 @@ app.layout = dbc.Container(
                 )
             ),]),
 
-        #############
-        # Check Launch Script
-        #############  
+        # ----------------------------------------
+        #   Check Launch Script
+        # ----------------------------------------
+
         dbc.Row([
             dbc.Col(
                 html.Div([
@@ -244,9 +237,10 @@ app.layout = dbc.Container(
             ),
         ],style={'padding':'0.5em'}),
 
-        #############
-        # View output
-        #############
+        # ----------------------------------------
+        #   View Output
+        # ----------------------------------------
+
         dbc.Row([
             dbc.Col(
                 html.Div([
@@ -257,9 +251,10 @@ app.layout = dbc.Container(
             )
         ],style={'padding':'0.5em'}),
 
-        #############
-        # Download output
-        #############
+        # ----------------------------------------
+        #   Download Output
+        # ----------------------------------------
+        
         dbc.Row([
             dbc.Col(
                 html.Div([
@@ -279,14 +274,34 @@ app.layout = dbc.Container(
 # ----------------------------------------
 #        Data validation, only digits, upper case letters, and commas allowed
 # ----------------------------------------
-import re
-test = '[a-z]|\{|\}|\[|\]|\(|\)|\$|\&|\=|\*|\-|\.|\\|\/'
 
+# does not test for non-ascii characters or back slashes yet
 def regex_test(test_string):
-    test = '[a-z]|\{|\}|\[|\]|\(|\)|\$|\&|\=|\*|\-|\.|\\|\/'
+    test = '[a-z]|\{|\}|\[|\]|\(|\)|\$|\&|\=|\*|\-|\.|\_|\/'
     m = re.search(test,test_string)
     # returns True if no disallowed characters are found
     return m is None
+
+
+def new_file_available():
+    """
+    file listing is now sorted to assure the newest file is at the end of the list
+    There was some weirdness going on where "." and ".." were out of sequence and causing problems
+    """
+    sa.fname = sorted(os.listdir(FSW_OUTPUT_DIR))[-1]
+    this_fpath = os.path.join(FSW_OUTPUT_DIR,sa.fname)
+    print(this_fpath)
+    if this_fpath != sa.original_fpath:
+        print(f"Yay! {this_fpath}")
+        sa.fpath = this_fpath
+        return True
+    else:
+        print("Not yet")
+        return False
+
+################################################################################
+#      Callback functions below
+################################################################################
 
 # ----------------------------------------
 #        Download Setup
@@ -299,6 +314,7 @@ def regex_test(test_string):
 )
 
 # func_test is a pretty undescriptive name for what's happening
+# Hey, I was testing at the time :)
 def func_test(n_clicks):
     return dcc.send_file(
         "/Forecast_Search_Wizard/FSW_OUTPUT/{}".format(sa.fname)
@@ -309,8 +325,7 @@ def func_test(n_clicks):
 #        Input words
 # ----------------------------------------
 
-# the only data validation being done so far is taking out extra spaces
-# much more to do here
+# some data validation here now, but more work to do
 @app.callback(Output("input_words_list-out", "children"),
                 [Input("input_words_list_submit","n_clicks")],
                 [State("input_words_list","value")])
@@ -318,6 +333,7 @@ def create_word_list(n_clicks,myvalue):
     original_word_list = sa.word_list
     if n_clicks > 0:
         this_str = str(myvalue)
+        # regex_test is what handles data validation
         if regex_test(this_str):
             fixed_str = this_str.replace(', ',',')
             word_list = fixed_str.split(',')
@@ -336,8 +352,8 @@ def create_word_list(n_clicks,myvalue):
 #        Product list
 # ----------------------------------------
 
-# data validation is practically non-existent here
-# much more to do
+# data validation is very rudimentary - eventually want to match against
+# a list of available products
 @app.callback(Output("forecast_product_list-out", "children"),
                 [Input("forecast_product_list_submit","n_clicks")],
                 [State("forecast_product_list","value")])
@@ -345,6 +361,7 @@ def create__product_list(n_clicks,myvalue):
     original_product_list = sa.product_list
     if n_clicks > 0:
         input_string = str(myvalue)
+        # regex_test is what handles data validation
         if regex_test(input_string):
             product_list = input_string.split(' ')
             if product_list != original_product_list:
@@ -373,7 +390,7 @@ def update_output(value):
 #mSNu87%H2%2
 
 # ----------------------------------------
-#        Booleans
+#      Boolean Search Methods
 # ----------------------------------------
 
 @app.callback(
@@ -422,6 +439,7 @@ def get_full_vars(n_clicks):
 # Here, the word or product lists are converted to a single string with "_" between the elements.
 # Then, in the NAMELIST_args.py script, this single string is split by "_" to get back to a list.
 # this is the easiest way I know of to pass args that are separated by spaces or commas
+
 def arg_from_list(this_list):
     cmd_str = ''
     for x in this_list:
@@ -432,9 +450,9 @@ def arg_from_list(this_list):
 # this is where the newly created file is copied to output.txt in the assets folder
 # I chose this location because people cas access it through the web interface
 # I gave this a fixed name because an actual fixed URL address is how I display text in an object element
-# here is the line of code that uses the copied file ...
-#    return [html.ObjectEl(data="https://fsw.nws.noaa.gov/assets/output.txt")]
-# obviously I could make this URL address a variable at some point
+# below is the line of code that uses the copied file ...
+# return [html.ObjectEl(data="https://fsw.nws.noaa.gov/assets/output.txt")]
+
 def process_text():
     cp_cmd_str = "cp /Forecast_Search_Wizard/FSW_OUTPUT/{0} /Forecast_Search_Wizard/web/fsw-dash/assets/output.txt".format(sa.fname)
     os.system(cp_cmd_str)
@@ -480,6 +498,7 @@ def execute_script(n_clicks):
 )
 # The html default for object element width is way too small.
 # Thus, there is a "assets/object.css" file that overrides the defaults
+
 def show_file_content(n_clicks):
     return [html.ObjectEl(data="https://fsw.nws.noaa.gov/assets/output.txt")]
 

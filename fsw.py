@@ -45,7 +45,9 @@ now = datetime.utcnow()
 this_year = now.year        # Set Slider end year to equal current year
 next_year = this_year + 1   # ensures range command to build the slider includes this year
 class FSW:
-    def __init__(self,start_year=2010,end_year=2020,isAnd=False,byForecast=True,isGrep=True):
+    def __init__(self,word_list=None, product_list=None,start_year=2010,end_year=this_year,isAnd=False,byForecast=True,isGrep=True):
+        self.word_list = word_list
+        self.product_list = product_list
         self.start_year = start_year
         self.end_year = end_year
         self.isAnd = isAnd
@@ -57,12 +59,10 @@ class FSW:
         self.fpath = None
         self.original_fpath = None
         self.fpath_contents = None
-        self.word_list = None
-        self.product_list = None
-        self.product_directory_list = os.listdir(DATA_DIR);
+        self.product_directory_list = os.listdir(DATA_DIR)
 
 sa = FSW()
-
+print(sa.product_directory_list)
 # ----------------------------------------
 #        Initiate Dash app
 # ----------------------------------------
@@ -337,8 +337,6 @@ def new_file_available():
     Input("download-btn", "n_clicks"),
     prevent_initial_call=True,
 )
-# func_test is a pretty undescriptive name for what's happening
-# Hey, I was testing at the time :)
 def send_download_file(n_clicks):
     return dcc.send_file(
         "/Forecast_Search_Wizard/FSW_OUTPUT/{}".format(sa.fname)
@@ -354,15 +352,13 @@ def send_download_file(n_clicks):
                 [Input("input_words_list_submit","n_clicks")],
                 [State("input_words_list","value")])
 def create_word_list(n_clicks,myvalue):
-    #original_word_list = sa.word_list
-    if n_clicks == 0:
+    original_word_list = sa.word_list
+    if n_clicks > 0:
         this_str = str(myvalue)
-        print(this_str)
-        # regex_test is what handles data validation
         if regex_test(this_str):
             fixed_str = this_str.replace(', ',',')
             word_list = fixed_str.split(',')
-            if word_list is not None:
+            if word_list != original_word_list:
                 sa.word_list = word_list        
                 sa.made_word_list = True
                 return str(sa.word_list)
@@ -372,7 +368,6 @@ def create_word_list(n_clicks,myvalue):
             return 'Only upper case letters, digits, and commas allowed!'
     else:
         return
-
 # ----------------------------------------
 #        Product list
 # ----------------------------------------
@@ -382,23 +377,20 @@ def create_word_list(n_clicks,myvalue):
 @app.callback(Output("forecast_product_list-out", "children"),
                 [Input("forecast_product_list_submit","n_clicks")],
                 [State("forecast_product_list","value")])
-def create__product_list(n_clicks,myvalue):
+def create_product_list(n_clicks,myvalue):
     original_product_list = sa.product_list
-    if n_clicks == 0:
+    if n_clicks > 0:
         input_string = str(myvalue)
-        # regex_test is what handles data validation
-        #if regex_test(input_string):
-        product_list = input_string.split(' ')
-        flags = product_flag(product_list)
-        if len(flags) == 0:
-            if product_list is not None:
-            #if product_list != original_product_list:
+        if regex_test(input_string):
+            product_list = input_string.split(' ')
+            if product_list != original_product_list:
                 sa.product_list = product_list
                 sa.made_product_list = True
                 return str(sa.product_list)
+            else:
+                return
         else:
-            text = "   The following products are unavailable ... " + str(flags) + "\n   Please resubmit your request!"
-            return text
+            return 'Only upper case letters, digits, and commas allowed!'
     else:
         return
 

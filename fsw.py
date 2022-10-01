@@ -45,9 +45,7 @@ now = datetime.utcnow()
 this_year = now.year        # Set Slider end year to equal current year
 next_year = this_year + 1   # ensures range command to build the slider includes this year
 class FSW:
-    def __init__(self,word_list=None, product_list=None,start_year=2010,end_year=this_year,isAnd=False,byForecast=True,isGrep=True):
-        self.word_list = word_list
-        self.product_list = product_list
+    def __init__(self,start_year=2010,end_year=2020,isAnd=False,byForecast=True,isGrep=True):
         self.start_year = start_year
         self.end_year = end_year
         self.isAnd = isAnd
@@ -59,6 +57,9 @@ class FSW:
         self.fpath = None
         self.original_fpath = None
         self.fpath_contents = None
+        self.word_list = None
+        self.product_list = None
+        self.product_directory_list = os.listdir(DATA_DIR);
 
 sa = FSW()
 
@@ -264,6 +265,22 @@ app.layout = dbc.Container(
                 style={'padding':'1em'})
             )
         ],style={'padding':'0.5em'}),
+
+        # ----------------------------------------
+        #   Reset Session
+        # ----------------------------------------
+
+        dbc.Row([
+            dbc.Col(
+                html.Div([
+                    dbc.Button("Click Here to Start a New Request",id='reset', n_clicks=0, style={'padding':'1em','width':'100%'}),
+                    #html.Div(children="You'll be notified here when the script completes ...",id="script-status",style=feedback)
+                ],
+                style={'padding':'1em'}
+                )
+            ),
+        ],style={'padding':'0.5em'}),
+
     ]),
 
     ])
@@ -281,6 +298,14 @@ def regex_test(test_string):
     m = re.search(test,test_string)
     # returns True if no disallowed characters are found
     return m is None
+
+def product_flag(product_list):
+    reject_list = []
+    for p in product_list:
+        if p not in sa.product_directory_list:
+            reject_list.append(p)
+
+    return reject_list
 
 
 def new_file_available():
@@ -362,16 +387,17 @@ def create__product_list(n_clicks,myvalue):
     if n_clicks > 0:
         input_string = str(myvalue)
         # regex_test is what handles data validation
-        if regex_test(input_string):
-            product_list = input_string.split(' ')
+        #if regex_test(input_string):
+        product_list = input_string.split(' ')
+        flags = product_flag(product_list)
+        if len(flags) == 0:
             if product_list != original_product_list:
                 sa.product_list = product_list
                 sa.made_product_list = True
                 return str(sa.product_list)
-            else:
-                return
         else:
-            return 'Only upper case letters, digits, and commas allowed!'
+            text = "   The following products are unavailable ... " + str(flags) + "\n   Please resubmit your request!"
+            return text
     else:
         return
 
@@ -424,13 +450,18 @@ def on_form_change(isGrep_value):
 @app.callback(Output("full_vars-out", "children"),
                 [Input("full_vars","n_clicks")],)   
 def get_full_vars(n_clicks):
-    template = "Word list = {} ... Product list = {} ... start_year = {} ... end_year = {} ... isAnd = {} ... byForecast = {} ... isGrep = {}".format(sa.word_list,
+    if sa.made_product_list and sa.made_word_list:
+        template = "Word list = {} ... Product list = {} ... start_year = {} ... end_year = {} ... isAnd = {} ... byForecast = {} ... isGrep = {}".format(sa.word_list,
                                                                     sa.product_list,
                                                                     sa.start_year,
                                                                     sa.end_year,sa.isAnd,sa.byForecast,sa.isGrep
-)
+        )
+    else:
+        return "You still need to specify a product and/or word list!!"
 
     return template
+
+#mSNu87%H2%2
 
 # ----------------------------------------
 #        Execute and monitor FSW script
@@ -462,7 +493,7 @@ def process_text():
 @app.callback(Output("script-status", "children"),
                 [Input("run_script","n_clicks")],)
 def execute_script(n_clicks):
-    if n_clicks == 0:
+    if n_clicks >= 0:
         return "After clicking above, you'll be notified here when the script completes ... "
     if sa.made_product_list and sa.made_word_list:
         new_file = new_file_available()
@@ -502,6 +533,18 @@ def execute_script(n_clicks):
 def show_file_content(n_clicks):
     return [html.ObjectEl(data="https://fsw.nws.noaa.gov/assets/output.txt")]
 
+
+# ----------------------------------------
+#        Reset Script
+# ----------------------------------------
+@app.callback(
+    Input("reset","n_clicks"),
+    prevent_initial_call=True,
+)
+def reset_session(n_clicks):
+    sa = None
+    sa = FSW()
+    return sa
 
 if __name__ == '__main__':
     app.run_server()

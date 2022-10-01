@@ -356,7 +356,7 @@ def func_test(n_clicks):
                 [State("input_words_list","value")])
 def create_word_list(n_clicks,myvalue):
     original_word_list = sa.word_list
-    if n_clicks > 0:
+    if n_clicks == 0:
         this_str = str(myvalue)
         # regex_test is what handles data validation
         if regex_test(this_str):
@@ -384,7 +384,7 @@ def create_word_list(n_clicks,myvalue):
                 [State("forecast_product_list","value")])
 def create__product_list(n_clicks,myvalue):
     original_product_list = sa.product_list
-    if n_clicks > 0:
+    if n_clicks == 0:
         input_string = str(myvalue)
         # regex_test is what handles data validation
         #if regex_test(input_string):

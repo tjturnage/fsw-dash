@@ -337,10 +337,9 @@ def new_file_available():
     Input("download-btn", "n_clicks"),
     prevent_initial_call=True,
 )
-
 # func_test is a pretty undescriptive name for what's happening
 # Hey, I was testing at the time :)
-def func_test(n_clicks):
+def send_download_file(n_clicks):
     return dcc.send_file(
         "/Forecast_Search_Wizard/FSW_OUTPUT/{}".format(sa.fname)
     )
@@ -355,14 +354,15 @@ def func_test(n_clicks):
                 [Input("input_words_list_submit","n_clicks")],
                 [State("input_words_list","value")])
 def create_word_list(n_clicks,myvalue):
-    original_word_list = sa.word_list
+    #original_word_list = sa.word_list
     if n_clicks == 0:
         this_str = str(myvalue)
+        print(this_str)
         # regex_test is what handles data validation
         if regex_test(this_str):
             fixed_str = this_str.replace(', ',',')
             word_list = fixed_str.split(',')
-            if word_list != original_word_list:
+            if word_list is not None:
                 sa.word_list = word_list        
                 sa.made_word_list = True
                 return str(sa.word_list)
@@ -391,7 +391,8 @@ def create__product_list(n_clicks,myvalue):
         product_list = input_string.split(' ')
         flags = product_flag(product_list)
         if len(flags) == 0:
-            if product_list != original_product_list:
+            if product_list is not None:
+            #if product_list != original_product_list:
                 sa.product_list = product_list
                 sa.made_product_list = True
                 return str(sa.product_list)

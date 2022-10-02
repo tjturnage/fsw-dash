@@ -18,18 +18,13 @@ import time
 #        Attempt to set up environment
 # ----------------------------------------
 
-# this confirms that we're on the cloud instance and sets paths accordingly
-try:
-    root_dir = '/data'
-    FSW_DIR = '/Forecast_Search_Wizard'
-    DATA_DIR = os.path.join(root_dir, 'TEXT_DATA')
-    RUN_DIR = os.path.join(FSW_DIR, 'RUN_ME')
-    FSW_OUTPUT_DIR = os.path.join(FSW_DIR,'FSW_OUTPUT')
+#FSW_DIR = '/Forecast_Search_Wizard'                            # instance
+FSW_DIR = '/home/tjturnage/scripts/Forecast_Search_Wizard'      # pyany
+#FSW_DIR = '/data/scripts/Forecast_Search_Wizard'               # tw
 
-# if not on the cloud instance, then I'm probably running the flask web server on my laptop
-except:
-    root_dir = 'C:/data/'
-    #root_dir = '/home/tjturnage/'
+DATA_DIR = os.path.join(FSW_DIR, 'TEXT_DATA')
+RUN_DIR = os.path.join(FSW_DIR, 'RUN_ME')
+FSW_OUTPUT_DIR = os.path.join(FSW_DIR,'FSW_OUTPUT')
 
 try:
     os.chdir(RUN_DIR)

@@ -28,19 +28,15 @@ this_year = now.year
 # next year is needed to bump out slider range to include current year
 next_year = this_year + 1
 
-# this confirms that we're on the cloud instance and sets paths accordingly
-try:
-    root_dir = '/data'
-    FSW_DIR = '/Forecast_Search_Wizard'
-    DATA_DIR = os.path.join(root_dir, 'TEXT_DATA')
-    RUN_DIR = os.path.join(FSW_DIR, 'RUN_ME')
-    FSW_OUTPUT_DIR = os.path.join(FSW_DIR,'FSW_OUTPUT')
+# choose proper host
 
-# if not on the cloud instance, then I'm probably running the flask web server on my laptop
-except:
-    root_dir = 'C:/data/scripts'
-    DATA_DIR = os.path.join(root_dir, 'TEXT_DATA')
-    #root_dir = '/home/tjturnage/'
+#FSW_DIR = '/Forecast_Search_Wizard'                            # instance
+FSW_DIR = '/home/tjturnage/scripts/Forecast_Search_Wizard'      # pyany
+#FSW_DIR = '/data/scripts/Forecast_Search_Wizard'               # tw
+
+DATA_DIR = os.path.join(FSW_DIR, 'TEXT_DATA')
+RUN_DIR = os.path.join(FSW_DIR, 'RUN_ME')
+FSW_OUTPUT_DIR = os.path.join(FSW_DIR,'FSW_OUTPUT')
 
 try:
     os.chdir(RUN_DIR)
@@ -380,7 +376,7 @@ def update_output(value):
 @app.callback(
     Output("isAnd-out", "children"),
     [Input("isAnd", "value"),],)
-def on_form_change(isAnd_value):
+def on_isand_change(isAnd_value):
     template = "isAnd = {}".format(isAnd_value)
     sa.isAnd = isAnd_value
     return template
@@ -388,7 +384,7 @@ def on_form_change(isAnd_value):
 @app.callback(
     Output("byForecast-out", "children"),
     [Input("byForecast", "value"),],)
-def on_form_change(byForecast_value):
+def on_byforecast_change(byForecast_value):
     template = "byForecast = {}".format(byForecast_value)
     sa.byForecast = byForecast_value
     return template
@@ -396,7 +392,7 @@ def on_form_change(byForecast_value):
 @app.callback(
     Output("isGrep-out", "children"),
     [Input("isGrep", "value"),],)
-def on_form_change(isGrep_value):
+def on_isgrep_change(isGrep_value):
     template = "isGrep = {}".format(isGrep_value)
     sa.isGrep = isGrep_value
     return template

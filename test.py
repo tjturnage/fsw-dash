@@ -1,10 +1,7 @@
 import os
 import sys
-import re
 from datetime import datetime
 import dash
-
-# dcc = dash core components
 from dash import html, dcc
 
 # bootstrap is what helps styling for a better presentation
@@ -15,8 +12,21 @@ from dash.dependencies import Input, Output,State
 import time
 
 # ----------------------------------------
-#        Attempt to set up environment
+#        Initiate Dash app
 # ----------------------------------------
+
+app = dash.Dash(__name__, external_stylesheets= [dbc.themes.DARKLY])
+app.title = "Forecast Search Wizard"
+
+# ----------------------------------------
+#        Set Slider end year = current year
+# ----------------------------------------
+
+now = datetime.utcnow()
+this_year = now.year
+
+# next year is needed to bump out slider range to include current year
+next_year = this_year + 1
 
 # this confirms that we're on the cloud instance and sets paths accordingly
 try:
@@ -28,7 +38,8 @@ try:
 
 # if not on the cloud instance, then I'm probably running the flask web server on my laptop
 except:
-    root_dir = 'C:/data/'
+    root_dir = 'C:/data/scripts'
+    DATA_DIR = os.path.join(root_dir, 'TEXT_DATA')
     #root_dir = '/home/tjturnage/'
 
 try:
@@ -40,12 +51,8 @@ except:
 # ----------------------------------------
 #        Set up class then instantiate
 # ----------------------------------------
-
-now = datetime.utcnow()
-this_year = now.year        # Set Slider end year to equal current year
-next_year = this_year + 1   # ensures range command to build the slider includes this year
 class FSW:
-    def __init__(self,word_list=None,product_list=None,start_year=2010,end_year=this_year,isAnd=False,byForecast=True,isGrep=True):
+    def __init__(self,word_list=None, product_list=None,start_year=2010,end_year=this_year,isAnd=False,byForecast=True,isGrep=True):
         self.word_list = word_list
         self.product_list = product_list
         self.start_year = start_year
@@ -59,23 +66,27 @@ class FSW:
         self.fpath = None
         self.original_fpath = None
         self.fpath_contents = None
-        self.product_directory_list = os.listdir(DATA_DIR)
+
+def new_file_available():
+    """
+    file listing is now sorted to assure that the newest file is at the end of the list
+    There was some weirdness going on where "." and ".." were out of sequence and causing problems
+    """
+    sa.fname = sorted(os.listdir(FSW_OUTPUT_DIR))[-1]
+    this_fpath = os.path.join(FSW_OUTPUT_DIR,sa.fname)
+    print(this_fpath)
+    if this_fpath != sa.original_fpath:
+        print(f"Yay! {this_fpath}")
+        sa.fpath = this_fpath
+        return True
+    else:
+        print("Not yet")
+        return False
 
 sa = FSW()
-#print(sa.product_directory_list)
-# ----------------------------------------
-#        Initiate Dash app
-# ----------------------------------------
-
-# here is where different sytlesheets could be used for the interface
-# see https://dash-bootstrap-components.opensource.faculty.ai/docs/themes/explorer/
-# it would be nice to replace the default dash favicon with one of our own
-
-app = dash.Dash(__name__, external_stylesheets= [dbc.themes.DARKLY])
-app.title = "Forecast Search Wizard"
 
 # ----------------------------------------
-#        Define some webpage layout variables
+#        Define Webpage variables
 # ----------------------------------------
 
 bold = {'font-weight': 'bold'}
@@ -118,13 +129,9 @@ view_output = [
                     className="card-text",
                 ),])]
 
-
-#mSNu87%H2%2
-
-
-################################################################################
-#      Build Webpage Layout
-################################################################################
+# ----------------------------------------
+#        Build Webpage layout
+# ----------------------------------------
 
 app.layout = dbc.Container(
     html.Div([
@@ -149,10 +156,9 @@ app.layout = dbc.Container(
                 html.Div(id='forecast_product_list-out', style=feedback,)])
         ),
 
-        # ----------------------------------------
-        #   Range Slider
-        # ----------------------------------------
-
+        #############
+        # Range Slider
+        #############
         dbc.Row(dbc.Card(step_three, color="info", inverse=True), style={'padding':'1em'}),
         dbc.Row([
             html.Div([
@@ -169,10 +175,9 @@ app.layout = dbc.Container(
             html.Div(id='slider_values-out', style=feedback,)
             ]),
 
-        # ----------------------------------------
-        #   Search Methods (Boolean options)
-        # ----------------------------------------
-
+        #############
+        # Search Methods
+        #############    
         dbc.Row(dbc.Card(step_four, color="info", inverse=True), style={'padding':'1em'}),
         dbc.Row([
             dbc.Col(
@@ -212,10 +217,9 @@ app.layout = dbc.Container(
 
         ]),
 
-        # ----------------------------------------
-        #   Check Selections
-        # ----------------------------------------
-
+        #############
+        # Check Selections
+        #############  
         dbc.Row([
             dbc.Col(
                 html.Div([
@@ -227,10 +231,9 @@ app.layout = dbc.Container(
                 )
             ),]),
 
-        # ----------------------------------------
-        #   Check Launch Script
-        # ----------------------------------------
-
+        #############
+        # Check Launch Script
+        #############  
         dbc.Row([
             dbc.Col(
                 html.Div([
@@ -242,10 +245,9 @@ app.layout = dbc.Container(
             ),
         ],style={'padding':'0.5em'}),
 
-        # ----------------------------------------
-        #   View Output
-        # ----------------------------------------
-
+        #############
+        # View output
+        #############
         dbc.Row([
             dbc.Col(
                 html.Div([
@@ -256,10 +258,9 @@ app.layout = dbc.Container(
             )
         ],style={'padding':'0.5em'}),
 
-        # ----------------------------------------
-        #   Download Output
-        # ----------------------------------------
-        
+        #############
+        # Download output
+        #############
         dbc.Row([
             dbc.Col(
                 html.Div([
@@ -269,22 +270,6 @@ app.layout = dbc.Container(
                 style={'padding':'1em'})
             )
         ],style={'padding':'0.5em'}),
-
-        # ----------------------------------------
-        #   Reset Session
-        # ----------------------------------------
-
-        dbc.Row([
-            dbc.Col(
-                html.Div([
-                    dbc.Button("Click Here to Start a New Request",id='reset', n_clicks=0, style={'padding':'1em','width':'100%'}),
-                    #html.Div(children="You'll be notified here when the script completes ...",id="script-status",style=feedback)
-                ],
-                style={'padding':'1em'}
-                )
-            ),
-        ],style={'padding':'0.5em'}),
-
     ]),
 
     ])
@@ -295,48 +280,38 @@ app.layout = dbc.Container(
 # ----------------------------------------
 #        Data validation, only digits, upper case letters, and commas allowed
 # ----------------------------------------
+import re
+test = '[a-z]|\{|\}|\[|\]|\(|\)|\$|\&|\=|\*|\-|\.|\\|\/'
 
-# does not test for non-ascii characters or back slashes yet
 def regex_test(test_string):
-    test = '[a-z]|\{|\}|\[|\]|\(|\)|\$|\&|\=|\*|\-|\.|\_|\/'
+    test = '[a-z]|\{|\}|\[|\]|\(|\)|\$|\&|\=|\*|\-|\.|\\|\/'
     m = re.search(test,test_string)
     # returns True if no disallowed characters are found
     return m is None
 
-def product_flag(product_list):
-    reject_list = []
-    for p in product_list:
-        if p not in sa.product_directory_list:
-            reject_list.append(p)
+# ----------------------------------------
+#        Download Setup
+# ----------------------------------------
 
-    return reject_list
+@app.callback(
+    Output("download", "data"),
+    Input("download-btn", "n_clicks"),
+    prevent_initial_call=True,
+)
 
+# func_test is a pretty undescriptive name for what's happening
+def func_test(n_clicks):
+    return dcc.send_file(
+        "/Forecast_Search_Wizard/FSW_OUTPUT/{}".format(sa.fname)
+    )
 
-def new_file_available():
-    """
-    file listing is now sorted to assure the newest file is at the end of the list
-    There was some weirdness going on where "." and ".." were out of sequence and causing problems
-    """
-    sa.fname = sorted(os.listdir(FSW_OUTPUT_DIR))[-1]
-    this_fpath = os.path.join(FSW_OUTPUT_DIR,sa.fname)
-    print(this_fpath)
-    if this_fpath != sa.original_fpath:
-        print(f"Yay! {this_fpath}")
-        sa.fpath = this_fpath
-        return True
-    else:
-        print("Not yet")
-        return False
-
-################################################################################
-#      Callback functions below
-################################################################################
 
 # ----------------------------------------
 #        Input words
 # ----------------------------------------
 
-# some data validation here now, but more work to do
+# the only data validation being done so far is taking out extra spaces
+# much more to do here
 @app.callback(Output("input_words_list-out", "children"),
                 [Input("input_words_list_submit","n_clicks")],
                 [State("input_words_list","value")])
@@ -357,16 +332,17 @@ def create_word_list(n_clicks,myvalue):
             return 'Only upper case letters, digits, and commas allowed!'
     else:
         return
+
 # ----------------------------------------
 #        Product list
 # ----------------------------------------
 
-# data validation is very rudimentary - eventually want to match against
-# a list of available products
+# data validation is practically non-existent here
+# much more to do
 @app.callback(Output("forecast_product_list-out", "children"),
                 [Input("forecast_product_list_submit","n_clicks")],
                 [State("forecast_product_list","value")])
-def create_product_list(n_clicks,myvalue):
+def create__product_list(n_clicks,myvalue):
     original_product_list = sa.product_list
     if n_clicks > 0:
         input_string = str(myvalue)
@@ -398,7 +374,7 @@ def update_output(value):
 #mSNu87%H2%2
 
 # ----------------------------------------
-#      Boolean Search Methods
+#        Booleans
 # ----------------------------------------
 
 @app.callback(
@@ -432,18 +408,13 @@ def on_form_change(isGrep_value):
 @app.callback(Output("full_vars-out", "children"),
                 [Input("full_vars","n_clicks")],)   
 def get_full_vars(n_clicks):
-    if sa.made_product_list and sa.made_word_list:
-        template = "Word list = {} ... Product list = {} ... start_year = {} ... end_year = {} ... isAnd = {} ... byForecast = {} ... isGrep = {}".format(sa.word_list,
+    template = "Word list = {} ... Product list = {} ... start_year = {} ... end_year = {} ... isAnd = {} ... byForecast = {} ... isGrep = {}".format(sa.word_list,
                                                                     sa.product_list,
                                                                     sa.start_year,
                                                                     sa.end_year,sa.isAnd,sa.byForecast,sa.isGrep
-        )
-    else:
-        return "You still need to specify a product and/or word list!!"
+)
 
     return template
-
-#mSNu87%H2%2
 
 # ----------------------------------------
 #        Execute and monitor FSW script
@@ -452,7 +423,6 @@ def get_full_vars(n_clicks):
 # Here, the word or product lists are converted to a single string with "_" between the elements.
 # Then, in the NAMELIST_args.py script, this single string is split by "_" to get back to a list.
 # this is the easiest way I know of to pass args that are separated by spaces or commas
-
 def arg_from_list(this_list):
     cmd_str = ''
     for x in this_list:
@@ -463,9 +433,9 @@ def arg_from_list(this_list):
 # this is where the newly created file is copied to output.txt in the assets folder
 # I chose this location because people cas access it through the web interface
 # I gave this a fixed name because an actual fixed URL address is how I display text in an object element
-# below is the line of code that uses the copied file ...
-# return [html.ObjectEl(data="https://fsw.nws.noaa.gov/assets/output.txt")]
-
+# here is the line of code that uses the copied file ...
+#    return [html.ObjectEl(data="https://fsw.nws.noaa.gov/assets/output.txt")]
+# obviously I could make this URL address a variable at some point
 def process_text():
     cp_cmd_str = "cp /Forecast_Search_Wizard/FSW_OUTPUT/{0} /Forecast_Search_Wizard/web/fsw-dash/assets/output.txt".format(sa.fname)
     os.system(cp_cmd_str)
@@ -475,7 +445,7 @@ def process_text():
 @app.callback(Output("script-status", "children"),
                 [Input("run_script","n_clicks")],)
 def execute_script(n_clicks):
-    if n_clicks >= 0:
+    if n_clicks == 0:
         return "After clicking above, you'll be notified here when the script completes ... "
     if sa.made_product_list and sa.made_word_list:
         new_file = new_file_available()
@@ -511,37 +481,9 @@ def execute_script(n_clicks):
 )
 # The html default for object element width is way too small.
 # Thus, there is a "assets/object.css" file that overrides the defaults
-
 def show_file_content(n_clicks):
     return [html.ObjectEl(data="https://fsw.nws.noaa.gov/assets/output.txt")]
 
-
-# ----------------------------------------
-#        Download Setup
-# ----------------------------------------
-
-@app.callback(
-    Output("download", "data"),
-    Input("download-btn", "n_clicks"),
-    prevent_initial_call=True,
-)
-def send_download_file(n_clicks):
-    return dcc.send_file(
-        "/Forecast_Search_Wizard/FSW_OUTPUT/{}".format(sa.fname)
-    )
-
-
-# ----------------------------------------
-#        Reset Script
-# ----------------------------------------
-@app.callback(
-    Input("reset","n_clicks"),
-    prevent_initial_call=True,
-)
-def reset_session(n_clicks):
-    sa = None
-    sa = FSW()
-    return sa
 
 if __name__ == '__main__':
     app.run_server()
